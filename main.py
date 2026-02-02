@@ -33,6 +33,36 @@ def index():
     return render_template("index.html", groups=groups)
 
 
+@app.route("/groups/<int:group_id>", methods=["GET"])
+def group_overview(group_id):
+    # Gruppe laden
+    group = GroupModel.query.get(group_id)
+
+    if not group or not group.is_active:
+        flash("Gruppe nicht gefunden.", "danger")
+        return redirect(url_for("index"))
+
+    # --- Platzhalter / vorbereitete Werte ---
+    # Später: echte Member-Tabelle
+    member_count = 2        # TODO: dynamisch
+    group_limit = 32
+
+    # Später: Owner aus Account-Tabelle laden
+    owner_name = "Max Mustermann"
+
+    # Anzeige zusammenbauen
+    class_grade = f"{group.klasse or '-'} / {group.grade or '-'}"
+
+    return render_template(
+        "group_overview.html",
+        group=group,
+        member_count=member_count,
+        group_limit=group_limit,
+        owner_name=owner_name,
+        class_grade=class_grade,
+    )
+
+
 @app.route("/groups/<int:group_id>/join", methods=["POST"])
 def join_group(group_id):
     # TODO: hier später Membership in DB speichern
