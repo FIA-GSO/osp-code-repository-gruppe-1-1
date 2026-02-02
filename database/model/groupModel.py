@@ -18,6 +18,7 @@ class GroupModel(db.Model):
     created = db.Column(db.DateTime, nullable=False, default=datetime.now())
     updated = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
 
+
 def create_group(account):
     with Session(db.engine) as session:
         session.add(account)
