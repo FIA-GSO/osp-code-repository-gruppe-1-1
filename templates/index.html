@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
+    <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+
+    <title>Lerngruppen-Tool</title>
+</head>
+<body>
+<header class="container py-4" style="max-width: 520px;">
+  <div class="d-flex align-items-center justify-content-between">
+    <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1>
+
+    <nav aria-label="Profilmenü">
+      <div class="dropdown">
+        <button
+          class="btn p-0 border-0 bg-transparent"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          aria-label="Profilmenü öffnen"
+        >
+          <span class="rounded-circle d-flex align-items-center justify-content-center"
+                style="width:52px;height:52px;background:#E9ECEF;">
+            <!-- Platzhalter-Icon -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#ADB5BD" aria-hidden="true">
+              <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2-8 4v2h16v-2c0-2-3.58-4-8-4Z"/>
+            </svg>
+          </span>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+          <li><a class="dropdown-item" href="">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="container pb-5" style="max-width: 520px;">
+  <!-- Suche -->
+  <section aria-label="Suche" class="mb-3">
+    <form class="row g-2 align-items-center" method="get" action="">
+      <div class="col">
+        <label class="visually-hidden" for="search">Suchen</label>
+        <input id="search" name="q" type="search"
+               class="form-control form-control-lg rounded-pill"
+               placeholder="Suchen..">
+      </div>
+      <div class="col-auto">
+        <button class="btn btn-secondary btn-lg rounded-pill px-4" type="submit">Suchen</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Meine Gruppen -->
+  <section aria-labelledby="my-groups-title" class="mb-4">
+    <h2 id="my-groups-title" class="fw-semibold mb-3" style="font-size:1.75rem;">Meine Gruppen</h2>
+
+    <ul class="list-unstyled vstack gap-3 m-0">
+      <!-- ITEM 1 -->
+      <li>
+        <button
+          type="button"
+          class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow"
+          data-bs-toggle="collapse"
+          data-bs-target="#myGroup1"
+          aria-expanded="false"
+          aria-controls="myGroup1"
+        >
+          <span class="fw-semibold">Gruppentitel</span>
+          <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">1 / 32</span>
+        </button>
+
+        <div id="myGroup1" class="collapse">
+          <div class="mt-2 px-3">
+            <div class="border rounded-4 p-3 bg-body">
+              <p class="mb-2 text-muted">
+                Kurzinfo: Thema/Level · Nächstes Treffen: Di 18:00 · Ort: Online
+              </p>
+
+              <dl class="row mb-3">
+                <dt class="col-5 text-muted">Erstellt von</dt>
+                <dd class="col-7 mb-0">Max Mustermann</dd>
+
+                <dt class="col-5 text-muted">Beschreibung</dt>
+                <dd class="col-7 mb-0">Mathe Abiturvorbereitung, wöchentlich.</dd>
+              </dl>
+
+              <div class="d-flex justify-content-end">
+                <a class="btn btn-first rounded-pill px-4"
+                   href="">
+                  Öffnen
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <!-- ITEM 2 -->
+      <li>
+        <button
+          type="button"
+          class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow"
+          data-bs-toggle="collapse"
+          data-bs-target="#myGroup2"
+          aria-expanded="false"
+          aria-controls="myGroup2"
+        >
+          <span class="fw-semibold">Gruppentitel</span>
+          <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">1 / 32</span>
+        </button>
+
+        <div id="myGroup2" class="collapse">
+          <div class="mt-2 px-3">
+            <div class="border rounded-4 p-3 bg-body">
+              <p class="mb-2 text-muted">
+                Kurzinfo: Thema/Level · Nächstes Treffen: Fr 16:00 · Ort: Raum B2
+              </p>
+
+              <div class="d-flex justify-content-end">
+                <a class="btn btn-first rounded-pill px-4"
+                   href="">
+                  Öffnen
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Alle Gruppen -->
+  <section aria-labelledby="all-groups-title">
+    <h2 id="all-groups-title" class="fw-semibold mb-3" style="font-size:1.75rem;">Alle Gruppen</h2>
+
+    <ul class="list-unstyled vstack gap-3 m-0">
+      <!-- JOINABLE -->
+      <li>
+        <button
+          type="button"
+          class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow"
+          data-bs-toggle="collapse"
+          data-bs-target="#allGroup10"
+          aria-expanded="false"
+          aria-controls="allGroup10"
+        >
+          <span class="fw-semibold">Gruppentitel</span>
+          <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">1 / 32</span>
+        </button>
+
+        <div id="allGroup10" class="collapse">
+          <div class="mt-2 px-3">
+            <div class="border rounded-4 p-3 bg-body">
+              <p class="mb-2 text-muted">
+                Kurzinfo: Englisch B2 · Treffen: Mi 19:00 · Online
+              </p>
+
+              <dl class="row mb-3">
+                <dt class="col-5 text-muted">Schwerpunkte</dt>
+                <dd class="col-7 mb-0">Speaking, Vocabulary</dd>
+              </dl>
+
+              <div class="d-flex justify-content-end">
+                <form method="post" action="" class="m-0">
+                  <button class="btn rounded-pill px-4 text-white"
+                          style="background:#2FA6A3;border-color:#2FA6A3;"
+                          type="submit">
+                    Beitreten
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <!-- FULL / DISABLED -->
+      <li>
+        <button
+          type="button"
+          class="w-100 text-start border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-dashed"
+          data-bs-toggle="collapse"
+          data-bs-target="#allGroupFull"
+          aria-expanded="false"
+          aria-controls="allGroupFull"
+        >
+          <span class="fw-semibold text-muted">Gruppentitel</span>
+          <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">32 / 32</span>
+        </button>
+
+        <div id="allGroupFull" class="collapse">
+          <div class="mt-2 px-3">
+            <div class="border rounded-4 p-3 bg-body">
+              <p class="mb-3 text-muted">
+                Diese Gruppe ist voll. Du kannst sie beobachten oder später beitreten, falls ein Platz frei wird.
+              </p>
+
+              <div class="d-flex justify-content-end gap-2">
+                <button class="btn rounded-pill px-4 text-white"
+                        style="background:#2FA6A3;border-color:#2FA6A3;"
+                        type="button" disabled>
+                  Beitreten
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </section>
+</main>
+
+<!-- Floating + Button -->
+<a href=""
+   class="position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none fab"
+   aria-label="Neue Lerngruppe erstellen">
+  <span class="text-white fw-bold" style="font-size:44px;line-height:0;">+</span>
+</a>
+
+</body>
+</html>

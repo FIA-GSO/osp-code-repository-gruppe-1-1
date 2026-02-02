@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
+    <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+
+    <title>Lerngruppen-Tool Login</title>
+</head>
+<body>
+<header class="container py-4" style="max-width: 520px;">
+  <div class="d-flex align-items-center justify-content-between">
+    <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN-TOOL</h1>
+  </div>
+</header>
+
+<main class="container py-4" style="max-width:520px;">
+  <section aria-labelledby="login-title">
+    <h1 id="login-title" class="fw-bold text-center mb-4" style="letter-spacing:.5px;">
+      Login
+    </h1>
+
+    <form method="post" action=""
+          class="needs-validation" novalidate>
+
+      <div class="mb-3">
+        <label for="login_email" class="form-label fw-semibold">E-Mail</label>
+        <input
+          type="email"
+          id="login_email"
+          name="email"
+          class="form-control form-control-lg rounded-pill"
+          placeholder="mail@gso.schule.koeln"
+          required
+          autocomplete="email"
+          pattern="^[A-Za-z0-9._%+\-]+@gso\.schule\.koeln$"
+        >
+        <div class="invalid-feedback">
+          Bitte gib deine <strong>@gso.schule.koeln</strong> E-Mail korrekt ein.
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="login_password" class="form-label fw-semibold">Passwort</label>
+        <input
+          type="password"
+          id="login_password"
+          name="password"
+          class="form-control form-control-lg rounded-pill"
+          placeholder="••••••••"
+          required
+          autocomplete="current-password"
+        >
+        <div class="invalid-feedback">
+          Bitte gib dein Passwort ein.
+        </div>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-first btn-lg rounded-pill py-3">
+          Einloggen
+        </button>
+      </div>
+    </form>
+
+    <p class="text-center text-muted mt-4 mb-0">
+      Noch kein Account?
+      <a href="" class="fw-semibold text-decoration-none">Registrieren</a>
+    </p>
+  </section>
+</main>
+
+<script>
+  (() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        const email = form.querySelector('#login_email');
+        if (email) {
+          const ok = /^[A-Za-z0-9._%+\-]+@gso\.schule\.koeln$/.test(email.value.trim());
+          email.setCustomValidity(ok ? '' : 'invalid-domain');
+        }
+
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+
+</body>
+</html>
