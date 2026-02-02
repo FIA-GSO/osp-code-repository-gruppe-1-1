@@ -1,10 +1,5 @@
 from unittest import TestCase
-
-from sqlalchemy.orm import Session, sessionmaker
-
-from database.accountService import *
-
-from database.model.accountModel import AccountModel
+from database.model.accountModel import AccountModel, create_account
 
 
 class TestAccountService(TestCase):

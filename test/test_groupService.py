@@ -1,5 +1,4 @@
 from unittest import TestCase
-
 from database.model.groupModel import GroupModel, create_group
 
 
