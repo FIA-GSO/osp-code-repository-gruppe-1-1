@@ -1,0 +1,25 @@
+  .pill-row {
+    border-radius: 999px;
+  }
+  .pill-shadow {
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  }
+  .pill-dashed {
+    border: 2px dashed #CED4DA !important;
+    background: #F1F3F5 !important;
+  }
+  .fab {
+    width: 96px;
+    height: 96px;
+    border-radius: 999px;
+    background: #4C86C6;
+    box-shadow: 0 10px 25px rgba(0,0,0,.18);
+  }
+  .btn-first {
+    background-color: #376CA9 !important;
+    color: white;
+  }
+
+  a {
+   color: #376CA9 !important;
+  }
