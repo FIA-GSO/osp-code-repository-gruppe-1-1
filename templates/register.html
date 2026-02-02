@@ -3,9 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
+    <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
+    <script src="static/js/bootstrap.bundle.min.js"></script>
+
     <title>Lerngruppen-Tool Registrierung</title>
 </head>
 <body>
+<header class="container py-4" style="max-width: 520px;">
+  <div class="d-flex align-items-center justify-content-between">
+    <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN-TOOL</h1>
+  </div>
+</header>
+
+<main class="container py-4" style="max-width:520px;">
+  <section aria-labelledby="register-title">
+    <h1 id="register-title" class="fw-bold text-center mb-4" style="letter-spacing:.5px;">
+      Registrieren
+    </h1>
+
+    <form method="post" action=""
+          class="needs-validation" novalidate>
+
+      <div class="mb-3">
+        <label for="first_name" class="form-label fw-semibold">Name</label>
+        <input
+          type="text"
+          id="first_name"
+          name="first_name"
+          class="form-control form-control-lg rounded-pill"
+          placeholder="Name"
+          required
+          minlength="2"
+        >
+        <div class="invalid-feedback">
+          Bitte gib einen gültigen Vornamen ein (mind. 2 Zeichen).
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="last_name" class="form-label fw-semibold">Nachname</label>
+        <input
+          type="text"
+          id="last_name"
+          name="last_name"
+          class="form-control form-control-lg rounded-pill"
+          placeholder="Nachname"
+          required
+          minlength="2"
+        >
+        <div class="invalid-feedback">
+          Bitte gib einen gültigen Nachnamen ein (mind. 2 Zeichen).
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label fw-semibold">E-Mail</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-control form-control-lg rounded-pill"
+          placeholder="vorname.nachname@gso.schule.koeln"
+          required
+          autocomplete="email"
+          pattern="^[A-Za-z0-9._%+\-]+@gso\.schule\.koeln$"
+        >
+        <div class="invalid-feedback">
+          Bitte nutze ausschließlich deine <strong>@gso.schule.koeln</strong> Adresse.
+        </div>
+        <div class="form-text">
+          Nur Schul-Accounts sind erlaubt.
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="password" class="form-label fw-semibold">Passwort</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control form-control-lg rounded-pill"
+          placeholder="••••••••"
+          required
+          minlength="8"
+          autocomplete="new-password"
+        >
+        <div class="invalid-feedback">
+          Bitte wähle ein Passwort mit mindestens 8 Zeichen.
+        </div>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-first btn-lg rounded-pill py-3">
+          Registrieren
+        </button>
+      </div>
+    </form>
+
+    <p class="text-center text-muted mt-4 mb-0">
+      Bereits registriert?
+      <a href="" class="fw-semibold text-decoration-none">Jetzt einloggen</a>
+    </p>
+  </section>
+</main>
+
+<script>
+  // Bootstrap 5 Validation (Standard Pattern)
+  (() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        // Extra: Email-Domain aktiv prüfen (zusätzlich zum pattern)
+        const email = form.querySelector('#email');
+        if (email) {
+          const ok = /^[A-Za-z0-9._%+\-]+@gso\.schule\.koeln$/.test(email.value.trim());
+          email.setCustomValidity(ok ? '' : 'invalid-domain');
+        }
+
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
 
 </body>
 </html>
