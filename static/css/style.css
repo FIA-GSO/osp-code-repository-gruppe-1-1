@@ -21,5 +21,9 @@
   }
 
   a {
-   color: #376CA9 !important;
+   color: #376CA9;
+  }
+
+  .open {
+    color: white !important;
   }

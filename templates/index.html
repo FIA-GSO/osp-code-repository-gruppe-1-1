@@ -93,39 +93,7 @@
               </dl>
 
               <div class="d-flex justify-content-end">
-                <a class="btn btn-first rounded-pill px-4"
-                   href="">
-                  Öffnen
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
-
-      <!-- ITEM 2 -->
-      <li>
-        <button
-          type="button"
-          class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow"
-          data-bs-toggle="collapse"
-          data-bs-target="#myGroup2"
-          aria-expanded="false"
-          aria-controls="myGroup2"
-        >
-          <span class="fw-semibold">Gruppentitel</span>
-          <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">1 / 32</span>
-        </button>
-
-        <div id="myGroup2" class="collapse">
-          <div class="mt-2 px-3">
-            <div class="border rounded-4 p-3 bg-body">
-              <p class="mb-2 text-muted">
-                Kurzinfo: Thema/Level · Nächstes Treffen: Fr 16:00 · Ort: Raum B2
-              </p>
-
-              <div class="d-flex justify-content-end">
-                <a class="btn btn-first rounded-pill px-4"
+                <a class="open btn btn-first rounded-pill px-4"
                    href="">
                   Öffnen
                 </a>
@@ -137,7 +105,6 @@
     </ul>
   </section>
 
-  <!-- Alle Gruppen -->
   <section aria-labelledby="all-groups-title">
     <h2 id="all-groups-title" class="fw-semibold mb-3" style="font-size:1.75rem;">Alle Gruppen</h2>
 
@@ -218,12 +185,131 @@
   </section>
 </main>
 
-<!-- Floating + Button -->
-<a href=""
-   class="position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none fab"
-   aria-label="Neue Lerngruppe erstellen">
+<!-- Modal: Gruppe erstellen -->
+<div class="modal fade" id="createGroupModal" tabindex="-1"
+     aria-labelledby="createGroupTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+    <div class="modal-content border-0" style="border-radius:24px;">
+      <header class="modal-header border-0 pb-0">
+        <h2 id="createGroupTitle" class="modal-title fw-bold" style="letter-spacing:.5px;">
+          Neue Gruppe
+        </h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </header>
+
+      <div class="modal-body pt-3">
+        <form method="post" action=""
+              class="needs-validation" novalidate>
+
+          <!-- Name -->
+          <div class="mb-3">
+            <label for="group_name" class="form-label fw-semibold">Name</label>
+            <input
+              type="text"
+              id="group_name"
+              name="name"
+              class="form-control form-control-lg rounded-pill"
+              placeholder="z.B. Mathe Lerngruppe"
+              required
+              minlength="3"
+            >
+            <div class="invalid-feedback">Bitte gib einen Gruppennamen ein (mind. 3 Zeichen).</div>
+          </div>
+
+          <!-- Stufe (Dropdown) -->
+          <div class="mb-3">
+            <label for="group_level" class="form-label fw-semibold">Stufe</label>
+            <select
+              id="group_level"
+              name="stufe"
+              class="form-select form-select-lg rounded-pill"
+              required
+            >
+              <option value="" selected disabled>Bitte auswählen…</option>
+              <option value="Unterstufe">Unterstufe</option>
+              <option value="Mittelstufe">Mittelstufe</option>
+              <option value="Oberstufe">Oberstufe</option>
+            </select>
+            <div class="invalid-feedback">Bitte wähle eine Stufe aus.</div>
+          </div>
+
+          <!-- Fach -->
+          <div class="mb-3">
+            <label for="group_subject" class="form-label fw-semibold">Fach</label>
+            <input
+              type="text"
+              id="group_subject"
+              name="fach"
+              class="form-control form-control-lg rounded-pill"
+              placeholder="z.B. Mathematik"
+              required
+              minlength="3"
+            >
+            <div class="invalid-feedback">Bitte gib ein Fach an (mind. 3 Zeichen).</div>
+          </div>
+
+          <!-- Thema -->
+          <div class="mb-3">
+            <label for="group_topic" class="form-label fw-semibold">Thema</label>
+            <input
+              type="text"
+              id="group_topic"
+              name="thema"
+              class="form-control form-control-lg rounded-pill"
+              placeholder="z.B. Lineare Funktionen"
+              required
+              minlength="3"
+            >
+            <div class="invalid-feedback">Bitte gib ein Thema an (mind. 3 Zeichen).</div>
+          </div>
+
+          <footer class="d-flex gap-2 pt-2">
+            <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill flex-grow-1"
+                    data-bs-dismiss="modal">
+              Abbrechen
+            </button>
+
+            <button type="submit" class="btn btn-primary btn-lg rounded-pill flex-grow-1">
+              Erstellen
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Floating Action Button -->
+<button
+  type="button"
+  class="position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none border-0"
+  style="width:96px;height:96px;border-radius:999px;background:#4C86C6;box-shadow:0 10px 25px rgba(0,0,0,.18);"
+  data-bs-toggle="modal"
+  data-bs-target="#createGroupModal"
+  aria-label="Neue Lerngruppe erstellen"
+>
   <span class="text-white fw-bold" style="font-size:44px;line-height:0;">+</span>
-</a>
+</button>
+
+
+
+<script>
+  (() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
 
 </body>
 </html>
