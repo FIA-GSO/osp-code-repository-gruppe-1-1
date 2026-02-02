@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from database.model.accountmodel import AccountModel
+from database.model.accountModel import AccountModel
 
 
 class AccountService:
