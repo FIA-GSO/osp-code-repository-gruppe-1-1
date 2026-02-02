@@ -1,8 +1,8 @@
-from main import db
+from database.model.base import db
 from sqlalchemy import ForeignKey
 from datetime import datetime
 
-class AccountModel(db.Model):
+class GroupModel(db.Model):
     __tablename__ = 'group'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

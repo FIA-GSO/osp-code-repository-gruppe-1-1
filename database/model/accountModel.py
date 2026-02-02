@@ -1,6 +1,6 @@
-from main import db
 from sqlalchemy import CheckConstraint
 from datetime import datetime
+from database.model.base import db
 
 class AccountModel(db.Model):
     __tablename__ = 'account'

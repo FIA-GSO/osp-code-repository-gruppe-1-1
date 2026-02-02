@@ -1,8 +1,8 @@
-from main import db
+from database.model.base import db
 from sqlalchemy import ForeignKey, CheckConstraint
 from datetime import datetime
 
-class AccountModel(db.Model):
+class GroupActionModel(db.Model):
     __tablename__ = 'group_action'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

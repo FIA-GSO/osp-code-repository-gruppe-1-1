@@ -1,13 +1,11 @@
 from flask import Flask, request, session, redirect, url_for, render_template, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from database.model.base import db
 
 app = Flask(__name__)
 app.secret_key = b'dlajwasdhdddqwf98fg9f23803f'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(
 
-)
 db.init_app(app)
 with app.app_context():
     db.create_all()

@@ -1,23 +1,27 @@
+from sqlalchemy.orm import Session
 from database.model.accountmodel import AccountModel
 
 
 class AccountService:
-    def __init__(self, db):
-        self.db = db
+    def __init__(self, engine):
+        self.engine = engine
 
-    def createAccount(self, account):
-        with self.db.session as session:
+    def create_account(self, account):
+        with Session(self.engine) as session:
+
             session.add(account)
             session.commit()
+            session.refresh(account)
+            return account
 
-    def editAccount(self, accountId, dict):
-        with self.db.session as session:
-            account = AccountModel.query.get(accountId)
+    def edit_account(self, account_id, dict):
+        with Session(self.engine) as session:
+            account = AccountModel.query.get(account_id)
             account.update(dict)
             session.commit()
 
-    def deleteAccount(self, accountId):
-        with self.db.session as session:
-            account = AccountModel.query.get(accountId)
+    def delete_account(self, account_id):
+        with Session(self.engine) as session:
+            account = AccountModel.query.get(account_id)
             session.delete(account)
             session.commit()
