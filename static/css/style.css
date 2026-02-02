@@ -1,29 +1,122 @@
-  .pill-row {
+
+
+.pill-row {
     border-radius: 999px;
-  }
-  .pill-shadow {
+}
+.pill-shadow {
     box-shadow: 0 2px 8px rgba(0,0,0,.06);
-  }
-  .pill-dashed {
+}
+.pill-dashed {
     border: 2px dashed #CED4DA !important;
     background: #F1F3F5 !important;
-  }
-  .fab {
+}
+.fab {
     width: 96px;
     height: 96px;
     border-radius: 999px;
     background: #4C86C6;
     box-shadow: 0 10px 25px rgba(0,0,0,.18);
-  }
-  .btn-first {
+}
+
+/* sitzt im Container -> nicht mehr Fullscreen-breit */
+.flash-wrap{
+    position: sticky;
+    top: 12px;
+    z-index: 1080;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* stack */
+.flash-stack{
+    display: grid;
+    gap: 10px;
+}
+
+/* Pill-Alert */
+.flash-pill{
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 14px 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.10);
+    border: 1px solid rgba(0,0,0,.06);
+
+    /* Bootstrap alert hat oft default padding/margins -> wir kontrollieren */
+    margin-bottom: 0;
+}
+
+/* Punkt links */
+.flash-dot{
+    width: 10px;
+    height: 10px;
+    border-radius: 99px;
+    flex: 0 0 auto;
+}
+
+/* Text */
+.flash-text{
+    flex: 1 1 auto;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Close Button */
+.flash-close{
+    flex: 0 0 auto;
+    opacity: .65;
+}
+.flash-close:hover{ opacity: 1; }
+
+/* Farben */
+.flash-success .flash-dot{ background:#198754; }
+.flash-danger  .flash-dot{ background:#dc3545; }
+.flash-warning .flash-dot{ background:#ffc107; }
+.flash-info    .flash-dot{ background:#0dcaf0; }
+
+.flash-success{ background: rgba(25,135,84,.3); }
+.flash-danger { background: rgba(220,53,69,.3); }
+.flash-warning{ background: rgba(255,193,7,.5); }
+.flash-info   { background: rgba(13,202,240,.3); }
+
+.btn-first {
     background-color: #376CA9 !important;
     color: white;
-  }
+}
 
-  a {
-   color: #376CA9;
-  }
+a {
+    color: #376CA9;
+}
 
-  .open {
+.open {
     color: white !important;
-  }
+}
+
+.btn-create {
+    width:96px;
+    height:96px;
+    border-radius:999px;
+    background:#4C86C6;
+    box-shadow:0 10px 25px rgba(0,0,0,.18);
+}
+
+.plus {
+    font-size:44px;
+    line-height:0;
+}
+
+.btn-disabled {
+    background:#2FA6A3 !important;
+    border-color:#2FA6A3 !important;
+}
+
+.grp-nr {
+    min-width:64px;
+    text-align:right;
+}
+
+.all-grp {
+    font-size:1.75rem;
+}

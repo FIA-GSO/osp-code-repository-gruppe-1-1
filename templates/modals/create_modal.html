@@ -1,0 +1,96 @@
+{# templates/modals/create_modal.html #}
+
+
+<div class="modal fade" id="createGroupModal" tabindex="-1"
+     aria-labelledby="createGroupTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+    <div class="modal-content border-0" style="border-radius:24px;">
+      <header class="modal-header border-0 pb-0">
+        <h2 id="createGroupTitle" class="modal-title fw-bold" style="letter-spacing:.5px;">
+          Neue Gruppe
+        </h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </header>
+
+      <div class="modal-body pt-3">
+        <form method="post" action="{{ url_for('create_group') }}"
+              class="needs-validation" novalidate>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <!-- Name -->
+          <div class="mb-3">
+            <label for="group_name" class="form-label fw-semibold">Name</label>
+            <input
+              type="text"
+              id="group_name"
+              name="name"
+              class="form-control form-control-lg rounded-pill"
+              placeholder="z.B. HTML Lerngruppe"
+              required
+              minlength="3"
+            >
+            <div class="invalid-feedback">Bitte gib einen Gruppennamen ein (mind. 3 Zeichen).</div>
+          </div>
+
+          <!-- Stufe (Dropdown) -->
+          <div class="mb-3">
+            <label for="group_level" class="form-label fw-semibold">Stufe</label>
+            <select
+              id="group_level"
+              name="stufe"
+              class="form-select form-select-lg rounded-pill"
+              required
+            >
+              <option value="" selected disabled>Bitte auswählen…</option>
+              <option value="Unterstufe">Unterstufe</option>
+              <option value="Mittelstufe">Mittelstufe</option>
+              <option value="Oberstufe">Oberstufe</option>
+            </select>
+            <div class="invalid-feedback">Bitte wähle eine Stufe aus.</div>
+          </div>
+
+          <!-- Fach -->
+          <div class="mb-3">
+            <label for="group_subject" class="form-label fw-semibold">Fach</label>
+            <input
+              type="text"
+              id="group_subject"
+              name="fach"
+              class="form-control form-control-lg rounded-pill"
+              placeholder="z.B. Mathematik"
+              required
+              minlength="3"
+            >
+            <div class="invalid-feedback">Bitte gib ein Fach an (mind. 3 Zeichen).</div>
+          </div>
+
+          <!-- Thema -->
+          <div class="mb-3">
+            <label for="group_topic" class="form-label fw-semibold">Thema</label>
+            <input
+              type="text"
+              id="group_topic"
+              name="thema"
+              class="form-control form-control-lg rounded-pill"
+              placeholder="z.B. Lineare Funktionen"
+              required
+              minlength="3"
+            >
+            <div class="invalid-feedback">Bitte gib ein Thema an (mind. 3 Zeichen).</div>
+          </div>
+
+          <footer class="d-flex gap-2 pt-2">
+            <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill flex-grow-1"
+                    data-bs-dismiss="modal">
+              Abbrechen
+            </button>
+
+            <button type="submit" class="btn btn-primary btn-lg rounded-pill flex-grow-1">
+              Erstellen
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
