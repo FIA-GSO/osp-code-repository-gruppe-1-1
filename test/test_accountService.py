@@ -2,17 +2,13 @@ from unittest import TestCase
 
 from sqlalchemy.orm import Session, sessionmaker
 
-from database.accountService import AccountService
-from sqlalchemy import create_engine
+from database.accountService import *
 
 from database.model.accountModel import AccountModel
 
 
 class TestAccountService(TestCase):
     def test_create_account(self):
-        engine = create_engine("sqlite:///../instance/test.db", echo=True)
-        service = AccountService(engine)
-
         account = AccountModel(
             email="<EMAIL>",
             secret="secret",
@@ -20,7 +16,7 @@ class TestAccountService(TestCase):
             last_name="last",
             role="USER",
         )
-        new_account = service.create_account(account)
+        new_account = create_account(account)
         print(new_account.id)
 
 
