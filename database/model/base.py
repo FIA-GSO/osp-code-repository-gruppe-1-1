@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-import database.model.accountmodel
+import database.model.accountModel
 import database.model.groupModel
 import database.model.groupMemberModel
 import database.model.groupActionModel
