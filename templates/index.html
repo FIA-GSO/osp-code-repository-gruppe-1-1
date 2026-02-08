@@ -143,13 +143,41 @@
             <!-- Klickbare Gruppenzeile -->
             <button
               type="button"
-              class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow"
+              class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between
+              pill-row pill-shadow {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %}pill-dashed{% endif %}"
               data-bs-toggle="collapse"
               data-bs-target="#group{{ group.id }}"
               aria-expanded="false"
               aria-controls="group{{ group.id }}"
             >
-              <span class="fw-semibold">{{ group.name }}</span>
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ group.name }}</span>
+
+                {% if group.appointment %}
+                  <small class="text-muted d-flex align-items-center gap-2">
+
+                    <!-- Datum -->
+                    <span>
+                      Wann: {{ group.appointment | dt_local }}
+                    </span>
+
+                    <!-- Status Badge -->
+                    {% set status = group_meta[group.id].status %}
+                    {% if status == "past" %}
+                      <span class="badge rounded-pill text-bg-secondary">abgelaufen</span>
+                    {% elif status == "today" %}
+                      <span class="badge rounded-pill text-bg-warning">heute</span>
+                    {% elif status == "future" %}
+                      <span class="badge rounded-pill text-bg-info">geplant</span>
+                    {% endif %}
+                  </small>
+                {% endif %}
+                <small class="text-muted d-flex align-items-center gap-2">
+                  <span>
+                    Wo: {{ group.place }}
+                  </span>
+                </small>
+              </div>
 
               <!-- Platzhalter für Mitglieder, falls du das später hast -->
               <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
@@ -161,11 +189,11 @@
             <div id="group{{ group.id }}" class="collapse">
               <div class="mt-2 px-3">
                 <div class="border rounded-4 p-3 bg-body">
-                  <p class="mb-2 text-muted">
+                  <p class="mb-2 text-muted grp-name">
                     <strong>Fach:</strong> {{ group.subject or "—" }} ·
                     <strong>Stufe:</strong> {{ group.grade or "—" }}
                   </p>
-                  <p class="mb-3">
+                  <p class="mb-3 grp-name">
                     <strong>Thema:</strong> {{ group.topic }}
                   </p>
 
@@ -185,7 +213,7 @@
                     </form>
                     <!--IF ADMIN ^-->
                     <!--vvvvvvv später ersetzen mit group.owner== current_user.id vvvvvvv-->
-                  {% if group.owner == 1 %}
+                  {% if group.owner == 1 %}<!-- DAS DA -->
                     <button
                       type="button"
                       class="btn btn-outline-primary rounded-pill px-4"
@@ -196,6 +224,8 @@
                       data-group-grade="{{ group.grade or '' }}"
                       data-group-subject="{{ group.subject or '' }}"
                       data-group-topic="{{ group.topic or '' }}"
+                      data-group-appointment="{{ group.appointment or '' }}"
+                      data-group-place="{{ group.place or '' }}"
                     >
                       Bearbeiten
                     </button>
@@ -204,7 +234,9 @@
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                       <button
                         type="submit"
-                        class="btn rounded-pill px-4 text-white btn-disabled">
+                        class="btn rounded-pill px-4 text-white btn-disabled"
+                        {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %} disabled aria-disabled="true" {% endif %}
+                      >
                         Beitreten
                       </button>
                     </form>
@@ -292,11 +324,13 @@
     const stufeEl = document.getElementById('edit_stufe');
     const fachEl = document.getElementById('edit_fach');
     const themaEl = document.getElementById('edit_thema');
+    const appointmentEl = document.getElementById('edit_appointment');
+    const placeEl = document.getElementById('edit_place');
 
     // Helper: Bootstrap validation styles zurücksetzen
     const resetValidation = () => {
       formEl.classList.remove('was-validated');
-      [nameEl, stufeEl, fachEl, themaEl].forEach((field) => {
+      [nameEl, stufeEl, fachEl, themaEl, appointmentEl, placeEl].forEach((field) => {
         field.classList.remove('is-valid', 'is-invalid');
         field.setCustomValidity('');
       });
@@ -312,6 +346,8 @@
       const groupGrade = btn.getAttribute('data-group-grade') || '';
       const groupSubject = btn.getAttribute('data-group-subject') || '';
       const groupTopic = btn.getAttribute('data-group-topic') || '';
+      const appointmentEl = document.getElementById('edit_appointment');
+      const groupPlace = btn.getAttribute('data-group-place') || '';
 
       // Form Action setzen: /groups/<id>/edit
       // Wenn du einen anderen Pfad nutzt, hier anpassen!
@@ -322,6 +358,19 @@
       nameEl.value = groupName;
       fachEl.value = groupSubject;
       themaEl.value = groupTopic;
+      placeEl.value = groupPlace || '';
+
+      // Date setzen
+      const ts = btn.dataset.groupAppointment;
+
+      if (ts) {
+        // Unix → datetime-local (YYYY-MM-DDTHH:MM)
+        const d = new Date(parseInt(ts) * 1000);
+        d.setHours(d.getHours() + 1);
+        appointmentEl.value = d.toISOString().slice(0, 16);
+      } else {
+        appointmentEl.value = '';
+      }
 
       // Select setzen (falls leer -> placeholder)
       if (groupGrade) {
@@ -338,6 +387,7 @@
       formEl.reset();
       resetValidation();
       formEl.action = '';
+      appointmentEl.value = '';
     });
 
     // Bootstrap Validation (Submit)
@@ -365,6 +415,27 @@
             field instanceof HTMLTextAreaElement)) return;
 
       if (field.disabled) return;
+
+      //SPEZIALFALL: datetime-local darf nicht in der Vergangenheit liegen
+      if (field.type === 'datetime-local') {
+        const val = field.value;
+
+        if (!val) {
+          // optionales Feld → ok
+          field.setCustomValidity('');
+        } else {
+          const chosen = new Date(val);
+          const now = new Date();
+
+          if (isNaN(chosen.getTime())) {
+            field.setCustomValidity('invalid-datetime');
+          } else if (chosen.getTime() < now.getTime()) {
+            field.setCustomValidity('past-datetime');
+          } else {
+            field.setCustomValidity('');
+          }
+        }
+      }
 
       // Feld-Validity prüfen (HTML5)
       if (field.checkValidity()) {

@@ -30,6 +30,7 @@
     font-size: 1.1rem;
     line-height: 1.1;
     margin: 0;
+    word-break: break-all;
   }
   .subbar-meta{
     color:#6C757D;

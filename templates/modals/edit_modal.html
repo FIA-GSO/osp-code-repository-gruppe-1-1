@@ -27,7 +27,7 @@
             <label for="edit_name" class="form-label fw-semibold">Name</label>
             <input type="text" id="edit_name" name="name"
                    class="form-control form-control-lg rounded-pill"
-                   required minlength="3">
+                   required minlength="3" maxlength="20">
             <div class="invalid-feedback">
               Bitte gib einen Gruppennamen (mind. 3 Zeichen) ein.
             </div>
@@ -50,7 +50,7 @@
             <label for="edit_fach" class="form-label fw-semibold">Fach</label>
             <input type="text" id="edit_fach" name="fach"
                    class="form-control form-control-lg rounded-pill"
-                   required minlength="3">
+                   required minlength="3" maxlength="20">
             <div class="invalid-feedback">Bitte gib ein Fach (mind. 3 Zeichen) an.</div>
           </div>
 
@@ -60,6 +60,32 @@
                    class="form-control form-control-lg rounded-pill"
                    required minlength="3">
             <div class="invalid-feedback">Bitte gib ein Thema (mind. 3 Zeichen) an.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_appointment" class="form-label fw-semibold">
+              Treffpunkt (Datum & Uhrzeit)
+            </label>
+            <input
+              type="datetime-local"
+              id="edit_appointment"
+              name="appointment"
+              class="form-control form-control-lg rounded-pill"
+              required
+            >
+            <div class="invalid-feedback">
+              Der Treffpunkt darf nicht in der Vergangenheit liegen.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_place" class="form-label fw-semibold">Ort</label>
+            <select id="edit_place" name="place" class="form-select form-select-lg rounded-pill" required>
+              <option value="" disabled>Bitte auswählen…</option>
+              <option value="Online">Online</option>
+              <option value="Schule">Schule</option>
+            </select>
+            <div class="invalid-feedback">Bitte wähle einen Ort aus.</div>
           </div>
 
           <footer class="d-flex gap-2 pt-2">

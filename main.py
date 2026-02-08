@@ -1,5 +1,7 @@
 from flask import Flask, request, session, redirect, url_for, render_template, jsonify, flash
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from datetime import datetime
+import time
 from database.model.base import db
 from database.model.groupModel import GroupModel, save_group, delete_group
 
@@ -17,20 +19,66 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-# @todo UHRZEIT TREFFPUNKT DATENBANK!!!!!!!!
 
-
-# Optional aber sehr empfehlenswert: CSRF Fehler hübsch behandeln
+# CSRF Fehler
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
     flash("Sicherheitscheck fehlgeschlagen (CSRF). Bitte Seite neu laden und erneut versuchen.", "danger")
     return redirect(url_for("index"))
 
 
+@app.template_filter("dt_local")
+def dt_local(unix_ts):
+    """Unix timestamp (seconds) -> 'DD.MM.YYYY · HH:MM'"""
+    if not unix_ts:
+        return ""
+    try:
+        dt = datetime.fromtimestamp(int(unix_ts))
+        return dt.strftime("%d.%m.%Y · %H:%M")
+    except Exception:
+        return ""
+
+
 @app.route("/", methods=['GET'])
 def index():
     groups = GroupModel.query.filter_by(is_active=True).order_by(GroupModel.created.desc()).all()
-    return render_template("index.html", groups=groups)
+
+    now = int(time.time())
+    today = datetime.now().date()
+
+    group_meta = {}
+
+    for g in groups:
+        status = None  # None | today | past | future
+
+        # Platzhalter (später echte Member-Zahl)
+        member_count = 2 # Hier member anzahl aus db holen
+        group_limit = 32
+        is_full = member_count >= group_limit
+
+        if g.appointment:
+            ts = int(g.appointment)
+            dt = datetime.fromtimestamp(ts)
+
+            if ts < now:
+                status = "past"
+            elif dt.date() == today:
+                status = "today"
+            else:
+                status = "future"
+
+        group_meta[g.id] = {
+            "status": status,
+            "member_count": member_count,
+            "group_limit": group_limit,
+            "is_full": is_full,
+        }
+
+    return render_template(
+        "index.html",
+        groups=groups,
+        group_meta=group_meta
+    )
 
 
 @app.route("/groups/<int:group_id>", methods=["GET"])
@@ -53,6 +101,9 @@ def group_overview(group_id):
     # Anzeige zusammenbauen
     class_grade = f"{group.klasse or '-'} / {group.grade or '-'}"
 
+    now = int(time.time())
+    appointment_is_past = bool(group.appointment and int(group.appointment) < now)
+
     return render_template(
         "group_overview.html",
         group=group,
@@ -60,6 +111,7 @@ def group_overview(group_id):
         group_limit=group_limit,
         owner_name=owner_name,
         class_grade=class_grade,
+        appointment_is_past=appointment_is_past,
     )
 
 
@@ -85,12 +137,25 @@ def create_group():
     stufe = (request.form.get("stufe") or "").strip()
     fach = (request.form.get("fach") or "").strip()
     thema = (request.form.get("thema") or "").strip()
+    appointment_raw = request.form.get("appointment")
+    place = (request.form.get("place") or "").strip()
+
+    appointment_ts = None
+    if appointment_raw:
+        dt = datetime.fromisoformat(appointment_raw)
+        appointment_ts = int(dt.timestamp())
+
+        if appointment_ts and appointment_ts < int(time.time()):
+            flash("Der Treffpunkt darf nicht in der Vergangenheit liegen.", "danger")
+            return redirect(url_for("index"))
 
     errors = []
     if len(name) < 2:
         errors.append("Gruppenname ist zu kurz.")
     if stufe not in ALLOWED_GRADES:
         errors.append("Ungültige Stufe.")
+    if place not in {"Online", "Schule"}:
+        errors.append("Ungültiger Ort gewählt.")
 
     if errors:
         for e in errors:
@@ -103,7 +168,9 @@ def create_group():
         klasse=klasse or None,
         grade=stufe,
         subject=fach or None,
-        topic=thema or None,
+        topic=thema,
+        appointment=appointment_ts,
+        place=place,
     )
 
     save_group(group)
@@ -176,12 +243,26 @@ def edit_group_route(group_id):
     stufe = (request.form.get("stufe") or "").strip()
     fach = (request.form.get("fach") or "").strip()
     thema = (request.form.get("thema") or "").strip()
+    appointment_raw = request.form.get("appointment")
+    place = (request.form.get("place") or "").strip()
 
     errors = []
+    if appointment_raw:
+        dt = datetime.fromisoformat(appointment_raw)
+        group.appointment = int(dt.timestamp())
+
+        if group.appointment and group.appointment < int(time.time()):
+            flash("Der Treffpunkt darf nicht in der Vergangenheit liegen.", "danger")
+            return redirect(url_for("index"))
+    else:
+        errors.append("Gib ein gültiges Datum ein!.")
+
     if len(name) < 2:
         errors.append("Bitte gib einen Gruppennamen (mind. 2 Zeichen) ein.")
     if stufe and stufe not in ALLOWED_GRADES:
         errors.append("Ungültige Stufe gewählt.")
+    if place not in {"Online", "Schule"}:
+        errors.append("Ungültiger Ort gewählt.")
 
     if errors:
         for e in errors:
@@ -194,6 +275,7 @@ def edit_group_route(group_id):
     group.grade = stufe or None
     group.subject = fach or None
     group.topic = thema or None
+    group.place = place
 
     db.session.commit()
 

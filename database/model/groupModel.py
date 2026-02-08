@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from database.model.base import db
 from sqlalchemy import ForeignKey
 from datetime import datetime
+import time
 
 
 class GroupModel(db.Model):
@@ -14,7 +15,9 @@ class GroupModel(db.Model):
     klasse = db.Column(db.String(255), nullable=True)
     grade = db.Column(db.String(255), nullable=True)
     subject = db.Column(db.String(255), nullable=True)
-    topic = db.Column(db.String(255), nullable=True)
+    topic = db.Column(db.String(255), nullable=False)
+    place = db.Column(db.String(255), nullable=False, default="Online")
+    appointment = db.Column(db.Integer, nullable=False, comment="Unix timestamp (seconds)")
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)

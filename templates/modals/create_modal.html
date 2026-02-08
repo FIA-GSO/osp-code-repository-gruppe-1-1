@@ -28,6 +28,7 @@
               placeholder="z.B. HTML Lerngruppe"
               required
               minlength="3"
+              maxlength="20"
             >
             <div class="invalid-feedback">Bitte gib einen Gruppennamen ein (mind. 3 Zeichen).</div>
           </div>
@@ -60,6 +61,7 @@
               placeholder="z.B. Mathematik"
               required
               minlength="3"
+              maxlength="20"
             >
             <div class="invalid-feedback">Bitte gib ein Fach an (mind. 3 Zeichen).</div>
           </div>
@@ -77,6 +79,34 @@
               minlength="3"
             >
             <div class="invalid-feedback">Bitte gib ein Thema an (mind. 3 Zeichen).</div>
+          </div>
+
+          <!-- Wann? -->
+          <div class="mb-3">
+            <label for="appointment" class="form-label fw-semibold">
+              Treffpunkt (Datum & Uhrzeit)
+            </label>
+            <input
+              type="datetime-local"
+              id="appointment"
+              name="appointment"
+              class="form-control form-control-lg rounded-pill"
+              required
+            >
+            <div class="invalid-feedback">
+              Der Treffpunkt darf nicht in der Vergangenheit liegen.
+            </div>
+          </div>
+
+          <!-- Wo? -->
+          <div class="mb-3">
+            <label for="place" class="form-label fw-semibold">Ort</label>
+            <select id="place" name="place" class="form-select form-select-lg rounded-pill" required>
+              <option value="" selected disabled>Bitte auswählen…</option>
+              <option value="Online">Online</option>
+              <option value="Schule">Schule</option>
+            </select>
+            <div class="invalid-feedback">Bitte wähle einen Ort aus.</div>
           </div>
 
           <footer class="d-flex gap-2 pt-2">

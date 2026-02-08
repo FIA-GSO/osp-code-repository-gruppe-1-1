@@ -117,6 +117,10 @@ a {
     text-align:right;
 }
 
+.grp-name {
+    word-break: break-all;
+}
+
 .all-grp {
     font-size:1.75rem;
 }
