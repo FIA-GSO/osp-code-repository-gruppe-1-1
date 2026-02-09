@@ -15,8 +15,8 @@ class AccountModel(db.Model):
     role = db.Column(db.String(255), CheckConstraint("role in ('USER', 'ADMIN')"), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     email_verified = db.Column(db.Boolean, nullable=False, default=False)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    updated = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 def create_account(account):

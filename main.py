@@ -1,15 +1,21 @@
 from flask import Flask, request, session, redirect, url_for, render_template, jsonify, flash
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_bcrypt import Bcrypt
 from datetime import datetime
 import time
 from sqlalchemy import or_, and_
+from sqlalchemy.orm import joinedload
 from database.model.base import db
 from database.model.groupModel import GroupModel, save_group, delete_group
+from database.model.groupMemberModel import GroupMemberModel
+from database.model.accountModel import AccountModel
 from services.accountService import create_account as service_create_account, login_user as service_login_user
+from database.model.groupActionModel import GroupActionModel
 
 ALLOWED_GRADES = {"Unterstufe", "Mittelstufe", "Oberstufe"}
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 app.config["SECRET_KEY"] = "dlajwasdhdddqwf98fg9f23803f"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -42,7 +48,8 @@ def dt_local(unix_ts):
 
 @app.route("/", methods=['GET'])
 def index():
-    if session.get('account', None) is not None:
+    if session.get("account_id"):
+
         search = (request.args.get("q") or "").strip()
 
         query = GroupModel.query.filter_by(is_active=True)
@@ -112,9 +119,9 @@ def login_user():
 
 @app.route("/logout", methods=['GET'])
 def logout():
-    session.pop('account', None)
+    session.pop('account_id', None)
     flash('Erfolgreich ausgeloggt!', "success")
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 @app.route("/register_account", methods=['GET'])
@@ -124,8 +131,13 @@ def register_account():
 
 @app.route("/create_account", methods=['POST'])
 def create_account():
-    service_create_account()
-    return redirect(url_for('index'))
+    errors = service_create_account()
+    if not errors:
+        return redirect(url_for('index'))
+    else:
+        for e in errors:
+            flash(e, "danger")
+        return redirect(url_for('register_account'))
 
 
 @app.route("/groups/<int:group_id>", methods=["GET"])
@@ -139,7 +151,7 @@ def group_overview(group_id):
 
     # --- Platzhalter / vorbereitete Werte ---
     # Später: echte Member-Tabelle
-    member_count = 2  # TODO: dynamisch
+    member_count = GroupMemberModel.query.filter_by(group_id=group.id).count()
     group_limit = 32
 
     # Später: Owner aus Account-Tabelle laden
@@ -151,6 +163,16 @@ def group_overview(group_id):
     now = int(time.time())
     appointment_is_past = bool(group.appointment and int(group.appointment) < now)
 
+    messages = (
+        GroupActionModel.query
+        .options(joinedload(GroupActionModel.account))
+        .filter_by(group_id=group_id, type="MESSAGE")
+        .order_by(GroupActionModel.created.asc())
+        .all()
+    )
+
+    current_user_id = session.get("account_id")
+
     return render_template(
         "group_overview.html",
         group=group,
@@ -159,19 +181,102 @@ def group_overview(group_id):
         owner_name=owner_name,
         class_grade=class_grade,
         appointment_is_past=appointment_is_past,
+        messages=messages,
+        current_user_id=current_user_id,
     )
 
 
 @app.route("/groups/<int:group_id>/join", methods=["POST"])
 def join_group(group_id):
-    # TODO: hier später Membership in DB speichern
-    flash("Beitreten ist noch nicht implementiert.", "info")
+    # 1️⃣ Eingeloggt?
+    if not session.get("account_id") or not session.get("account_id"):
+        flash("Bitte zuerst einloggen.", "danger")
+        return redirect(url_for("login"))
+
+    account_id = session["account_id"]
+
+    group = GroupModel.query.get(group_id)
+    if not group or not group.is_active:
+        flash("Gruppe nicht gefunden.", "danger")
+        return redirect(url_for("index"))
+
+    # 3️⃣ Schon Mitglied?
+    existing = GroupMemberModel.query.filter_by(
+        account_id=account_id,
+        group_id=group_id
+    ).first()
+
+    if existing:
+        flash("Du bist bereits Mitglied dieser Gruppe.", "warning")
+        return redirect(url_for("index"))
+
+    # if is_full or is_past:
+    #     flash("Gruppe ist voll oder abgelaufen.", "danger")
+    #     return redirect(url_for("index"))
+
+    member_count = GroupMemberModel.query.filter_by(group_id=group.id).count()
+
+    # Mitglied anlegen
+    member = GroupMemberModel(
+        account_id=account_id,
+        group_id=group_id,
+        member_count=member_count
+    )
+
+    db.session.add(member)
+    db.session.commit()
+
+    flash("Du bist der Gruppe beigetreten", "success")
+    return redirect(url_for("group_overview", group_id=group_id))
+
+
+@app.route("/groups/<int:group_id>/leave", methods=["POST"])
+def leave_group(group_id):
+    if not session.get("account_id") or not session.get("account_id"):
+        flash("Bitte zuerst einloggen.", "danger")
+        return redirect(url_for("login"))
+
+    account_id = int(session["account_id"])
+
+    group = GroupModel.query.get(group_id)
+    if not group or not group.is_active:
+        flash("Gruppe nicht gefunden.", "danger")
+        return redirect(url_for("index"))
+
+    membership = GroupMemberModel.query.filter_by(
+        group_id=group_id,
+        account_id=account_id
+    ).first()
+
+    if not membership:
+        flash("Du bist kein Mitglied dieser Gruppe.", "warning")
+        return redirect(url_for("group_overview", group_id=group_id))
+
+    if group.owner == account_id:
+        flash("Als Gruppenleiter kannst du die Gruppe nicht verlassen. "
+              "Du kannst sie nur löschen.", "warning")
+        return redirect(url_for("group_overview", group_id=group_id))
+
+    db.session.delete(membership)
+    db.session.commit()
+
+    flash("Du hast die Gruppe verlassen.", "success")
     return redirect(url_for("index"))
 
 
 @app.route("/groups/create", methods=["POST"])
 def create_group():
-    # @todo:User checken ob schon 5 gruppen erstellt
+    # @todo: auch automatisch joinen beim erstellen
+    account_id = session["account_id"]
+    group_count = GroupModel.query.filter_by(
+        owner=account_id,
+        is_active=True
+    ).count()
+
+    if group_count >= 5:
+        flash("Du kannst maximal 5 Gruppen erstellen.", "warning")
+        return redirect(url_for("index"))
+
     name = (request.form.get("name") or "").strip()
     klasse = (request.form.get("klasse") or "").strip()
     stufe = (request.form.get("stufe") or "").strip()
@@ -228,10 +333,8 @@ def delete_group_route(group_id):
         flash("Gruppe nicht gefunden.", "danger")
         return redirect(url_for("index"))
 
-    # ❗ Sicherheitscheck (Owner)
-    # aktuell hast du noch kein Login → daher Beispiel mit owner == 1
-    # später: current_user.id
-    if group.owner != 1:
+    account_id = session["account_id"]
+    if group.owner != account_id:
         flash("Du darfst diese Gruppe nicht löschen.", "danger")
         return redirect(url_for("index"))
 
@@ -250,7 +353,8 @@ def deactivate_group_route(group_id):
         flash("Gruppe nicht gefunden.", "danger")
         return redirect(url_for("index"))
 
-    if group.owner != 1:
+    account_id = session["account_id"]
+    if group.owner != account_id:
         flash("Keine Berechtigung.", "danger")
         return redirect(url_for("index"))
 
@@ -268,9 +372,8 @@ def edit_group_route(group_id):
         flash("Gruppe nicht gefunden.", "danger")
         return redirect(url_for("index"))
 
-    # TODO: später current_user.id
-    owner_id = 1
-    if group.owner != owner_id:
+    account_id = session["account_id"]
+    if group.owner != account_id:
         flash("Du darfst diese Gruppe nicht bearbeiten.", "danger")
         return redirect(url_for("index"))
 
@@ -321,6 +424,90 @@ def edit_group_route(group_id):
 
     flash("Gruppe wurde aktualisiert.", "success")
     return redirect(url_for("index"))
+
+
+@app.route("/groups/<int:group_id>/messages", methods=["POST"])
+def send_group_message(group_id):
+    if session.get("account_id") is None:
+        flash("Bitte zuerst einloggen.", "danger")
+        return redirect(url_for("login"))
+
+    account_id = session.get("account_id")
+    if account_id is None:
+        flash("Ungültige Session.", "danger")
+        return redirect(url_for("login"))
+
+    group = GroupModel.query.get(group_id)
+    if not group or not group.is_active:
+        flash("Gruppe nicht gefunden.", "danger")
+        return redirect(url_for("index"))
+
+    text = (request.form.get("message") or "").strip()
+    if not text:
+        flash("Nachricht darf nicht leer sein.", "danger")
+        return redirect(url_for("group_overview", group_id=group_id))
+
+    if len(text) > 1000:
+        flash("Nachricht ist zu lang (max. 1000 Zeichen).", "danger")
+        return redirect(url_for("group_overview", group_id=group_id))
+
+    msg = GroupActionModel(
+        group_id=group_id,
+        account_id=account_id,
+        type="MESSAGE",
+        content=text,
+    )
+    db.session.add(msg)
+    db.session.commit()
+
+    return redirect(url_for("group_overview", group_id=group_id))
+
+
+@app.route("/admin", methods=['GET'])
+def admin_dashboard():
+    query = request.args.get("q")
+    if query:
+        users = (AccountModel.query
+                 .filter(or_(
+                    AccountModel.first_name.like("%" + query + "%"),
+                    AccountModel.last_name.like("%" + query + "%")))
+                 .all())
+    else:
+        users = AccountModel.query.all()
+    return render_template(
+        "dashboard.html",
+        users=users,
+    )
+
+
+@app.route("/account/<int:user_id>/deactivate", methods=["GET", "POST"])
+def account_deactivate(user_id):
+    account = AccountModel.query.get(user_id)
+
+    if not account:
+        flash("Nutzer nicht gefunden.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    account.is_active = False
+    db.session.commit()
+
+    flash("Nutzer wurde deaktiviert.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/account/<int:user_id>/activate", methods=["GET", "POST"])
+def account_activate(user_id):
+    account = AccountModel.query.get(user_id)
+
+    if not account:
+        flash("Nutzer nicht gefunden.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    account.is_active = True
+    db.session.commit()
+
+    flash("Nutzer wurde aktiviert.", "success")
+    return redirect(url_for("admin_dashboard"))
 
 
 if __name__ == '__main__':
