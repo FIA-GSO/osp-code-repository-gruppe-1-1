@@ -49,7 +49,7 @@ def dt_local(unix_ts):
 @app.route("/", methods=['GET'])
 def index():
     if session.get("account_id"):
-
+        account_id = session.get("account_id")
         search = (request.args.get("q") or "").strip()
 
         query = GroupModel.query.filter_by(is_active=True)
@@ -65,12 +65,40 @@ def index():
 
         groups = query.order_by(GroupModel.appointment.desc()).all()
 
+        my_groups = []
+        if account_id:
+            query_my = (
+                GroupModel.query
+                .join(GroupMemberModel, GroupMemberModel.group_id == GroupModel.id)
+                .filter(
+                    GroupModel.is_active == True,
+                    GroupMemberModel.account_id == account_id,
+                    GroupMemberModel.accepted == True
+                )
+            )
+
+            # gleiche Suche auch auf "Meine Gruppen" anwenden
+            if search:
+                from sqlalchemy import or_
+                like = f"%{search}%"
+                query_my = query_my.filter(or_(
+                    GroupModel.name.ilike(like),
+                    GroupModel.subject.ilike(like),
+                    GroupModel.topic.ilike(like),
+                ))
+
+            my_groups = query_my.order_by(GroupModel.created.desc()).all()
+
         now = int(time.time())
         today = datetime.now().date()
 
+        my_ids = {g.id for g in my_groups}
+        groups = [g for g in groups if g.id not in my_ids]
+
+        groups_for_meta = {g.id: g for g in (groups + my_groups)}.values()
         group_meta = {}
 
-        for g in groups:
+        for g in groups_for_meta:
             status = None  # None | today | past | future
 
             # Platzhalter (später echte Member-Zahl)
@@ -98,6 +126,7 @@ def index():
 
         return render_template(
             "index.html",
+            my_groups=my_groups,
             groups=groups,
             group_meta=group_meta,
             search=search,
@@ -200,7 +229,7 @@ def join_group(group_id):
         flash("Gruppe nicht gefunden.", "danger")
         return redirect(url_for("index"))
 
-    # 3️⃣ Schon Mitglied?
+    # Schon Mitglied?
     existing = GroupMemberModel.query.filter_by(
         account_id=account_id,
         group_id=group_id
@@ -220,14 +249,13 @@ def join_group(group_id):
     member = GroupMemberModel(
         account_id=account_id,
         group_id=group_id,
-        member_count=member_count
     )
 
     db.session.add(member)
     db.session.commit()
 
     flash("Du bist der Gruppe beigetreten", "success")
-    return redirect(url_for("group_overview", group_id=group_id))
+    return redirect(url_for("group_overview", group_id=group_id, member_count=member_count))
 
 
 @app.route("/groups/<int:group_id>/leave", methods=["POST"])
@@ -308,7 +336,7 @@ def create_group():
         return redirect(url_for("index"))
 
     group = GroupModel(
-        owner=1,  # später current_user.id
+        owner=account_id,
         name=name,
         klasse=klasse or None,
         grade=stufe,
@@ -319,6 +347,8 @@ def create_group():
     )
 
     save_group(group)
+    db.session.add(GroupMemberModel(group_id=group.id, account_id=account_id, accepted=True))
+    db.session.commit()
 
     flash("Gruppe erfolgreich erstellt.", "success")
     return redirect(url_for("index"))
