@@ -2,6 +2,8 @@ from flask import Flask, request, session, redirect, url_for, render_template, j
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from datetime import datetime
 import time
+
+from database.model.accountModel import AccountModel
 from sqlalchemy import or_, and_
 from database.model.base import db
 from database.model.groupModel import GroupModel, save_group, delete_group
@@ -322,6 +324,13 @@ def edit_group_route(group_id):
     flash("Gruppe wurde aktualisiert.", "success")
     return redirect(url_for("index"))
 
+@app.route("/admin", methods=['GET'])
+def admin_dashboard():
+    users = AccountModel.query.all
+    return render_template(
+        "dashboard.html",
+        users=users,
+    )
 
 if __name__ == '__main__':
     app.run(port=4000, debug=True)
