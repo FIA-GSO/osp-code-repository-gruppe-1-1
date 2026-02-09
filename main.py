@@ -1,5 +1,6 @@
 from flask import Flask, request, session, redirect, url_for, render_template, jsonify, flash
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_bcrypt import Bcrypt
 from datetime import datetime
 import time
 from sqlalchemy import or_, and_
@@ -7,12 +8,14 @@ from sqlalchemy.orm import joinedload
 from database.model.base import db
 from database.model.groupModel import GroupModel, save_group, delete_group
 from database.model.groupMemberModel import GroupMemberModel
+from database.model.accountModel import AccountModel
 from services.accountService import create_account as service_create_account, login_user as service_login_user
 from database.model.groupActionModel import GroupActionModel
 
 ALLOWED_GRADES = {"Unterstufe", "Mittelstufe", "Oberstufe"}
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 app.config["SECRET_KEY"] = "dlajwasdhdddqwf98fg9f23803f"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -46,7 +49,6 @@ def dt_local(unix_ts):
 @app.route("/", methods=['GET'])
 def index():
     if session.get("account_id"):
-        print("SESSION:", dict(session))
 
         search = (request.args.get("q") or "").strip()
 
@@ -129,8 +131,13 @@ def register_account():
 
 @app.route("/create_account", methods=['POST'])
 def create_account():
-    service_create_account()
-    return redirect(url_for('index'))
+    errors = service_create_account()
+    if not errors:
+        return redirect(url_for('index'))
+    else:
+        for e in errors:
+            flash(e, "danger")
+        return redirect(url_for('register_account'))
 
 
 @app.route("/groups/<int:group_id>", methods=["GET"])
@@ -454,6 +461,53 @@ def send_group_message(group_id):
     db.session.commit()
 
     return redirect(url_for("group_overview", group_id=group_id))
+
+
+@app.route("/admin", methods=['GET'])
+def admin_dashboard():
+    query = request.args.get("q")
+    if query:
+        users = (AccountModel.query
+                 .filter(or_(
+                    AccountModel.first_name.like("%" + query + "%"),
+                    AccountModel.last_name.like("%" + query + "%")))
+                 .all())
+    else:
+        users = AccountModel.query.all()
+    return render_template(
+        "dashboard.html",
+        users=users,
+    )
+
+
+@app.route("/account/<int:user_id>/deactivate", methods=["GET", "POST"])
+def account_deactivate(user_id):
+    account = AccountModel.query.get(user_id)
+
+    if not account:
+        flash("Nutzer nicht gefunden.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    account.is_active = False
+    db.session.commit()
+
+    flash("Nutzer wurde deaktiviert.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/account/<int:user_id>/activate", methods=["GET", "POST"])
+def account_activate(user_id):
+    account = AccountModel.query.get(user_id)
+
+    if not account:
+        flash("Nutzer nicht gefunden.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    account.is_active = True
+    db.session.commit()
+
+    flash("Nutzer wurde aktiviert.", "success")
+    return redirect(url_for("admin_dashboard"))
 
 
 if __name__ == '__main__':
