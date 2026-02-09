@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from database.model.base import db
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, or_
 from datetime import datetime
 import time
 
