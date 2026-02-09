@@ -2,8 +2,10 @@ from flask import Flask, request, session, redirect, url_for, render_template, j
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from datetime import datetime
 import time
+from sqlalchemy import or_, and_
 from database.model.base import db
 from database.model.groupModel import GroupModel, save_group, delete_group
+from services.accountService import create_account as service_create_account, login_user as service_login_user
 
 ALLOWED_GRADES = {"Unterstufe", "Mittelstufe", "Oberstufe"}
 
@@ -11,7 +13,6 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "dlajwasdhdddqwf98fg9f23803f"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 
 csrf = CSRFProtect(app)
 
@@ -41,44 +42,90 @@ def dt_local(unix_ts):
 
 @app.route("/", methods=['GET'])
 def index():
-    groups = GroupModel.query.filter_by(is_active=True).order_by(GroupModel.created.desc()).all()
+    if session.get('account', None) is not None:
+        search = (request.args.get("q") or "").strip()
 
-    now = int(time.time())
-    today = datetime.now().date()
+        query = GroupModel.query.filter_by(is_active=True)
 
-    group_meta = {}
+        if search:
+            like = f"%{search}%"
+            query = query.filter(
+                or_(
+                    GroupModel.subject.ilike(like),
+                    GroupModel.topic.ilike(like),
+                )
+            )
 
-    for g in groups:
-        status = None  # None | today | past | future
+        groups = query.order_by(GroupModel.appointment.desc()).all()
 
-        # Platzhalter (später echte Member-Zahl)
-        member_count = 2 # Hier member anzahl aus db holen
-        group_limit = 32
-        is_full = member_count >= group_limit
+        now = int(time.time())
+        today = datetime.now().date()
 
-        if g.appointment:
-            ts = int(g.appointment)
-            dt = datetime.fromtimestamp(ts)
+        group_meta = {}
 
-            if ts < now:
-                status = "past"
-            elif dt.date() == today:
-                status = "today"
-            else:
-                status = "future"
+        for g in groups:
+            status = None  # None | today | past | future
 
-        group_meta[g.id] = {
-            "status": status,
-            "member_count": member_count,
-            "group_limit": group_limit,
-            "is_full": is_full,
-        }
+            # Platzhalter (später echte Member-Zahl)
+            member_count = 2  # Hier member anzahl aus db holen
+            group_limit = 32
+            is_full = member_count >= group_limit
 
-    return render_template(
-        "index.html",
-        groups=groups,
-        group_meta=group_meta
-    )
+            if g.appointment:
+                ts = int(g.appointment)
+                dt = datetime.fromtimestamp(ts)
+
+                if ts < now:
+                    status = "past"
+                elif dt.date() == today:
+                    status = "today"
+                else:
+                    status = "future"
+
+            group_meta[g.id] = {
+                "status": status,
+                "member_count": member_count,
+                "group_limit": group_limit,
+                "is_full": is_full,
+            }
+
+        return render_template(
+            "index.html",
+            groups=groups,
+            group_meta=group_meta,
+            search=search,
+        )
+    else:
+        return redirect(url_for("login"))
+
+
+@app.route("/login", methods=['GET'])
+def login():
+    return render_template('login.html')
+
+
+@app.route("/login_user", methods=['POST'])
+def login_user():
+    service_login_user()
+    return redirect(url_for('index'))
+
+
+@app.route("/logout", methods=['GET'])
+def logout():
+    session.pop('account', None)
+    flash('Erfolgreich ausgeloggt!', "success")
+    return redirect(url_for('index'))
+
+
+@app.route("/register_account", methods=['GET'])
+def register_account():
+    return render_template('register.html')
+
+
+@app.route("/create_account", methods=['POST'])
+def create_account():
+    service_create_account()
+    return redirect(url_for('index'))
 
 
 @app.route("/groups/<int:group_id>", methods=["GET"])
@@ -92,7 +139,7 @@ def group_overview(group_id):
 
     # --- Platzhalter / vorbereitete Werte ---
     # Später: echte Member-Tabelle
-    member_count = 2        # TODO: dynamisch
+    member_count = 2  # TODO: dynamisch
     group_limit = 32
 
     # Später: Owner aus Account-Tabelle laden
@@ -119,13 +166,6 @@ def group_overview(group_id):
 def join_group(group_id):
     # TODO: hier später Membership in DB speichern
     flash("Beitreten ist noch nicht implementiert.", "info")
-    return redirect(url_for("index"))
-
-
-@app.route("/logout")
-def logout():
-    # TODO: logout
-    flash("logout ist noch nicht implementiert.", "info")
     return redirect(url_for("index"))
 
 
@@ -285,5 +325,3 @@ def edit_group_route(group_id):
 
 if __name__ == '__main__':
     app.run(port=4000, debug=True)
-
-

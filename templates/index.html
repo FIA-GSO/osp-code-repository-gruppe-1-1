@@ -72,18 +72,23 @@
 <main class="container pb-5" style="max-width: 520px;">
   <!-- Suche -->
   <section aria-label="Suche" class="mb-3">
-    <form class="row g-2 align-items-center" method="get" action="">
+    <form class="row g-2 align-items-center" method="get" action="{{ url_for('index') }}">
       <div class="col">
         <label class="visually-hidden" for="search">Suchen</label>
         <input id="search" name="q" type="search"
                class="form-control form-control-lg rounded-pill"
-               placeholder="Suchen..">
+               placeholder="Suchen.." value="{{ search or '' }}">
       </div>
       <div class="col-auto">
         <button class="btn btn-secondary btn-lg rounded-pill px-4" type="submit">Suchen</button>
       </div>
     </form>
   </section>
+  {% if search %}
+      <a href="{{ url_for('index') }}" class="small text-muted ms-2">
+        Suche zurücksetzen
+      </a>
+    {% endif %}
 
   <!-- Meine Gruppen -->
   <section aria-labelledby="my-groups-title" class="mb-4">
@@ -145,7 +150,7 @@
             <button
               type="button"
               class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between
-              pill-row pill-shadow {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %}pill-dashed{% endif %}"
+              pill-row pill-shadow {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %}pill-dashed{% endif %} p-1"
               data-bs-toggle="collapse"
               data-bs-target="#group{{ group.id }}"
               aria-expanded="false"
@@ -252,37 +257,11 @@
       <p class="text-muted">Es sind noch keine Gruppen vorhanden.</p>
     {% endif %}
 
-      <!-- FULL -->
-      <li>
-        <button
-          type="button"
-          class="w-100 text-start border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-dashed"
-          data-bs-toggle="collapse"
-          data-bs-target="#allGroupFull"
-          aria-expanded="false"
-          aria-controls="allGroupFull"
-        >
-          <span class="fw-semibold text-muted">Gruppentitel</span>
-          <span class="text-muted fw-semibold grp-nr">32 / 32</span>
-        </button>
-
-        <div id="allGroupFull" class="collapse">
-          <div class="mt-2 px-3">
-            <div class="border rounded-4 p-3 bg-body">
-              <p class="mb-3 text-muted">
-                Diese Gruppe ist voll. Du kannst sie beobachten oder später beitreten, falls ein Platz frei wird.
-              </p>
-
-              <div class="d-flex justify-content-end gap-2">
-                <button class="btn rounded-pill px-4 text-white btn-disabled"
-                        type="button" disabled>
-                  Beitreten
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
+    {% if not groups %}
+      <div class="text-center text-muted py-4">
+        Keine Gruppen gefunden{% if search %} für „{{ search }}“{% endif %}.
+      </div>
+    {% endif %}
     </ul>
   </section>
 </main>

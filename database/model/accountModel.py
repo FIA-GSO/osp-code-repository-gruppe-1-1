@@ -1,9 +1,8 @@
 from sqlalchemy import CheckConstraint
 from datetime import datetime
-
 from sqlalchemy.orm import Session
-
 from database.model.base import db
+
 
 class AccountModel(db.Model):
     __tablename__ = 'account'
@@ -21,22 +20,27 @@ class AccountModel(db.Model):
 
 
 def create_account(account):
-    with Session(db.engine) as session:
-        session.add(account)
-        session.commit()
-        session.refresh(account)
+    with Session(db.engine) as db_session:
+        db_session.add(account)
+        db_session.commit()
+        db_session.refresh(account)
         return account
 
 
 def edit_account(account_id, dict):
-    with Session(db.engine) as session:
+    with Session(db.engine) as db_session:
         account = AccountModel.query.get(account_id)
         account.update(dict)
-        session.commit()
+        db_session.commit()
 
 
 def delete_account(account_id):
-    with Session(db.engine) as session:
+    with Session(db.engine) as db_session:
         account = AccountModel.query.get(account_id)
-        session.delete(account)
-        session.commit()
+        db_session.delete(account)
+        db_session.commit()
+
+
+def get_account_by_email(email) -> AccountModel:
+    with Session(db.engine) as db_session:
+        return AccountModel.query.filter_by(email=email).first()
