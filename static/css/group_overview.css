@@ -1,0 +1,120 @@
+  :root{
+    --app-max: 520px;
+    --pill-radius: 999px;
+  }
+
+  /* Container wie dein UI */
+  .app-shell{ max-width: var(--app-max); }
+
+  /* Header */
+  .app-title{
+    font-weight: 800;
+    letter-spacing: .5px;
+  }
+
+  /* Avatar */
+  .avatar-btn{
+    width: 44px; height: 44px;
+    background:#E9ECEF;
+  }
+
+  /* Subheader row (Back + title + edit) */
+  .subbar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 6px 0 10px;
+  }
+  .subbar-title{
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.1;
+    margin: 0;
+    word-break: break-all;
+  }
+  .subbar-meta{
+    color:#6C757D;
+    font-weight:600;
+    margin: 0;
+    font-size:.95rem;
+  }
+  .icon-btn{
+    width: 40px; height: 40px;
+    border-radius: var(--pill-radius);
+    border: 0;
+    background: transparent;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:hover{ background:#F1F3F5; }
+
+  /* Info card */
+  .info-card{
+    border-radius: 18px;
+    background:#FFFFFF;
+    box-shadow: 0 6px 18px rgba(0,0,0,.07);
+    border: 1px solid rgba(0,0,0,.06);
+  }
+  .leave-btn{
+    border-radius: var(--pill-radius);
+    padding: 10px 18px;
+  }
+
+  /* Chat layout */
+  .chat-area{
+    padding-bottom: 92px; /* Platz für composer */
+  }
+
+  .name-pill{
+    display:inline-block;
+    border-radius: var(--pill-radius);
+    padding: 6px 14px;
+    font-weight: 700;
+    font-size: .9rem;
+    margin-bottom: 6px;
+  }
+  .name-pill.left{ background:#6C757D; color:#fff; }
+  .name-pill.right{ background:#4C86C6; color:#fff; }
+
+  .bubble{
+    display:inline-block;
+    max-width: 86%;
+    border-radius: 18px;
+    padding: 12px 14px;
+    background:#fff;
+    border: 1px solid rgba(0,0,0,.08);
+    box-shadow: 0 4px 14px rgba(0,0,0,.06);
+    line-height: 1.25;
+  }
+
+  .msg-row{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin: 14px 0;
+  }
+  .msg-row.left{ align-items:flex-start; }
+  .msg-row.right{ align-items:flex-end; }
+
+  /* Composer (bottom input) */
+  .composer{
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to top, #fff 65%, rgba(255,255,255,.85));
+    padding: 14px 0 10px;
+  }
+
+  .composer .form-control{
+    border-radius: var(--pill-radius);
+    height: 52px;
+  }
+  .composer .btn{
+    border-radius: var(--pill-radius);
+    height: 52px;
+    padding: 0 18px;
+  }
+
+  /* Kleine Divider-Optik wie im Mock */
+  .soft-divider{
+    height: 1px;
+    background: rgba(0,0,0,.06);
+  }

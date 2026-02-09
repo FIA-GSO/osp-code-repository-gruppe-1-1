@@ -1,0 +1,107 @@
+{# templates/modals/edit_group_modal.html #}
+
+<div class="modal fade" id="editGroupModal" tabindex="-1"
+     aria-labelledby="editGroupTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+    <div class="modal-content border-0" style="border-radius:24px;">
+      <header class="modal-header border-0 pb-0">
+        <h2 id="editGroupTitle" class="modal-title fw-bold" style="letter-spacing:.5px;">
+          Gruppe bearbeiten
+        </h2>
+        <button type="button" class="btn-close"
+                data-bs-dismiss="modal" aria-label="Schließen"></button>
+      </header>
+
+      <div class="modal-body pt-3">
+        <form id="editGroupForm"
+              method="post"
+              action=""
+              class="needs-validation"
+              novalidate>
+
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <!-- wird per JS gesetzt -->
+          <input type="hidden" id="edit_group_id" name="group_id">
+
+          <div class="mb-3">
+            <label for="edit_name" class="form-label fw-semibold">Name</label>
+            <input type="text" id="edit_name" name="name"
+                   class="form-control form-control-lg rounded-pill"
+                   required minlength="3" maxlength="20">
+            <div class="invalid-feedback">
+              Bitte gib einen Gruppennamen (mind. 3 Zeichen) ein.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_stufe" class="form-label fw-semibold">Stufe</label>
+            <select id="edit_stufe" name="stufe"
+                    class="form-select form-select-lg rounded-pill"
+                    required>
+              <option value="" disabled>Bitte auswählen…</option>
+              <option value="Unterstufe">Unterstufe</option>
+              <option value="Mittelstufe">Mittelstufe</option>
+              <option value="Oberstufe">Oberstufe</option>
+            </select>
+            <div class="invalid-feedback">Bitte wähle eine Stufe aus.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_fach" class="form-label fw-semibold">Fach</label>
+            <input type="text" id="edit_fach" name="fach"
+                   class="form-control form-control-lg rounded-pill"
+                   required minlength="3" maxlength="20">
+            <div class="invalid-feedback">Bitte gib ein Fach (mind. 3 Zeichen) an.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_thema" class="form-label fw-semibold">Thema</label>
+            <input type="text" id="edit_thema" name="thema"
+                   class="form-control form-control-lg rounded-pill"
+                   required minlength="3">
+            <div class="invalid-feedback">Bitte gib ein Thema (mind. 3 Zeichen) an.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_appointment" class="form-label fw-semibold">
+              Treffpunkt (Datum & Uhrzeit)
+            </label>
+            <input
+              type="datetime-local"
+              id="edit_appointment"
+              name="appointment"
+              class="form-control form-control-lg rounded-pill"
+              required
+            >
+            <div class="invalid-feedback">
+              Der Treffpunkt darf nicht in der Vergangenheit liegen.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_place" class="form-label fw-semibold">Ort</label>
+            <select id="edit_place" name="place" class="form-select form-select-lg rounded-pill" required>
+              <option value="" disabled>Bitte auswählen…</option>
+              <option value="Online">Online</option>
+              <option value="Schule">Schule</option>
+            </select>
+            <div class="invalid-feedback">Bitte wähle einen Ort aus.</div>
+          </div>
+
+          <footer class="d-flex gap-2 pt-2">
+            <button type="button"
+                    class="btn btn-outline-secondary btn-lg rounded-pill flex-grow-1"
+                    data-bs-dismiss="modal">
+              Abbrechen
+            </button>
+
+            <button type="submit"
+                    class="btn btn-primary btn-lg rounded-pill flex-grow-1">
+              Speichern
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

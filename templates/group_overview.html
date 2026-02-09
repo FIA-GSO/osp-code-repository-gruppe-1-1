@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/group_overview.css') }}">
+    <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='img/icons8-buch-ios-17-outlined-16.png') }}">
+    <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='img/icons8-buch-ios-17-outlined-32.png') }}">
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+    <title>Lerngruppen-Tool</title>
+</head>
+<body>
+<header class="container py-4" style="max-width: 520px;">
+  <div class="d-flex align-items-center justify-content-between">
+    <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1>
+
+    <nav aria-label="Profilmenü">
+      <div class="dropdown">
+        <button
+          class="btn p-0 border-0 bg-transparent"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          aria-label="Profilmenü öffnen"
+        >
+          <span class="rounded-circle d-flex align-items-center justify-content-center"
+                style="width:52px;height:52px;background:#E9ECEF;">
+            <!-- Platzhalter-Icon -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#ADB5BD" aria-hidden="true">
+              <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2-8 4v2h16v-2c0-2-3.58-4-8-4Z"/>
+            </svg>
+          </span>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+          <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="container app-shell">
+  <!-- Subbar: Back + Group title + Edit -->
+  <section class="subbar" aria-label="Gruppen-Kopfzeile">
+    <a class="icon-btn" href="{{ url_for('index') }}" aria-label="Zurück">
+      <!-- back arrow -->
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="#212529" aria-hidden="true">
+        <path d="M20 11H7.83l5.58-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+    </a>
+
+    <div class="flex-grow-1">
+      <p class="subbar-title">
+        {{ group.name if group else "Flask API" }}
+      </p>
+    </div>
+    {% if group.appointment %}
+    <p class="subbar-meta mb-0">
+      Treffen: {{ group.appointment | dt_local }}
+      {% if appointment_is_past %}
+        · <span class="text-muted fw-semibold">abgelaufen</span>
+      {% endif %}
+    </p>
+    {% endif %}
+
+    <!-- Edit (öffnet dein Edit-Modal oder führt zu Edit)  @todo einbauen -->
+    <button class="icon-btn" type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#editGroupModal"
+            aria-label="Gruppe bearbeiten">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#212529" aria-hidden="true">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm18-11.5a1.003 1.003 0 0 0 0-1.42l-1.34-1.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75L21 5.75z"/>
+      </svg>
+    </button>
+  </section>
+
+  <!-- Info Card -->
+  <section class="info-card p-3 mb-3" aria-label="Gruppeninformationen">
+    <div class="d-flex align-items-start justify-content-between gap-3">
+      <div class="small">
+        <div class="mb-2"><strong>Gruppenleiter:</strong> {{ owner_name if owner_name is defined else "Max Mustermann" }}</div>
+        <div class="mb-2"><strong>Klasse / Stufe:</strong> {{ class_grade if class_grade is defined else "FIA3F 3. Lehrjahr" }}</div>
+        <div class="mb-2"><strong>Fach:</strong> {{ group.subject if group else "SUD" }}</div>
+        <div class="mb-2"><strong>Thema:</strong> {{ group.topic if group else "Flask API" }}</div>
+        <div class="mb-2">
+          <strong>Treffpunkt:</strong>
+          {% if group.appointment %}
+            {{ group.appointment | dt_local }}
+            {% if appointment_is_past %}
+              <span class="badge rounded-pill text-bg-secondary ms-2">abgelaufen</span>
+            {% endif %}
+          {% else %}
+            —
+          {% endif %}
+        </div>
+        <div class="mb-2"><strong>Ort:</strong> {{ group.place or "—" }}</div>
+        <div class="mb-2"><strong>Mitglieder:</strong> ({{ member_count if member_count is defined else 2 }} / {{ group_limit if group_limit is defined else 32 }})</div><!-- @todo: mitglieder count -->
+      </div>
+        <!--ACTION  url_for('leave_group', group_id=group.id) if group else '#'  -->
+      <form method="post" action="" class="m-0">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-secondary leave-btn">Verlassen</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Chat -->
+  <section class="chat-area" aria-label="Chat">
+    <!-- Beispiel-Nachrichten (ersetzen durch Loop) -->
+    <article class="msg-row left">
+      <span class="name-pill left">Maxim Muster</span>
+      <div class="bubble">
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+      </div>
+    </article>
+
+    <article class="msg-row left">
+      <span class="name-pill left">Maxim Muster</span>
+      <div class="bubble">
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+      </div>
+    </article>
+
+    <article class="msg-row right">
+      <span class="name-pill right">Max Mustermann</span>
+      <div class="bubble">
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+      </div>
+    </article>
+
+    <article class="msg-row left">
+      <span class="name-pill left">Maxim Muster</span>
+      <div class="bubble">
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
+        eirmod tempor invidunt ut labore et
+      </div>
+    </article>
+
+    {# Später so:
+    {% for msg in messages %}
+      <article class="msg-row {{ 'right' if msg.sender_id == current_user.id else 'left' }}">
+        <span class="name-pill {{ 'right' if msg.sender_id == current_user.id else 'left' }}">{{ msg.sender_name }}</span>
+        <div class="bubble">{{ msg.text }}</div>
+      </article>
+    {% endfor %}
+    #}
+  </section>
+
+  <!-- Composer -->
+  <section class="composer" aria-label="Nachricht schreiben">
+    <!--  url_for('send_message', group_id=group.id) if group else '#'   -->
+    <form method="post" action="" class="row g-2 align-items-center m-0">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="col">
+        <label for="message" class="visually-hidden">Nachricht</label>
+        <input id="message" name="message" type="text"
+               class="form-control"
+               placeholder="Nachricht.."
+               autocomplete="off">
+      </div>
+
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Senden</button>
+      </div>
+    </form>
+  </section>
+</main>
+</body>
+</html>
