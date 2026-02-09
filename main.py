@@ -3,6 +3,8 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 from datetime import datetime
 import time
 
+from sqlalchemy.sql.functions import current_user
+
 from database.model.accountModel import AccountModel
 from sqlalchemy import or_, and_
 from database.model.base import db
@@ -324,13 +326,53 @@ def edit_group_route(group_id):
     flash("Gruppe wurde aktualisiert.", "success")
     return redirect(url_for("index"))
 
+
 @app.route("/admin", methods=['GET'])
 def admin_dashboard():
-    users = AccountModel.query.all
+    query = request.args.get("q")
+    if query:
+        users = (AccountModel.query
+                 .filter(or_(
+            AccountModel.first_name.like("%" + query + "%"),
+            AccountModel.last_name.like("%" + query + "%")))
+                 .all())
+    else:
+        users = AccountModel.query.all()
     return render_template(
         "dashboard.html",
         users=users,
     )
+
+
+@app.route("/account/<int:user_id>/deactivate", methods=["GET", "POST"])
+def account_deactivate(user_id):
+    account = AccountModel.query.get(user_id)
+
+    if not account:
+        flash("Nutzer nicht gefunden.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    account.is_active = False
+    db.session.commit()
+
+    flash("Nutzer wurde deaktiviert.", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/account/<int:user_id>/activate", methods=["GET", "POST"])
+def account_activate(user_id):
+    account = AccountModel.query.get(user_id)
+
+    if not account:
+        flash("Nutzer nicht gefunden.", "danger")
+        return redirect(url_for("admin_dashboard"))
+
+    account.is_active = True
+    db.session.commit()
+
+    flash("Nutzer wurde aktiviert.", "success")
+    return redirect(url_for("admin_dashboard"))
+
 
 if __name__ == '__main__':
     app.run(port=4000, debug=True)

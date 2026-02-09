@@ -1,31 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="static/css/bootstrap.min.css">
-  <link rel="stylesheet" href="static/css/style.css">
-  <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
-  <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
-  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/tool.js') }}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/style.css">
+    <link type="image/png" sizes="16x16" rel="icon"
+          href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
+    <link type="image/png" sizes="32x32" rel="icon"
+          href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tool.js') }}"></script>
 
-  <title>Lerngruppen-Tool</title>
+    <title>Lerngruppen-Tool</title>
 </head>
 <body>
 <header class="container py-4" style="max-width: 520px;">
-  <div class="d-flex align-items-center justify-content-between">
-    <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1>
+    <div class="d-flex align-items-center justify-content-between">
+        <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1>
 
-    <nav aria-label="Profilmenü">
-      <div class="dropdown">
-        <button
-          class="btn p-0 border-0 bg-transparent"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          aria-label="Profilmenü öffnen"
-        >
+        <nav aria-label="Profilmenü">
+            <div class="dropdown">
+                <button
+                        class="btn p-0 border-0 bg-transparent"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        aria-label="Profilmenü öffnen"
+                >
           <span class="rounded-circle d-flex align-items-center justify-content-center"
                 style="width:52px;height:52px;background:#E9ECEF;">
             <!-- Platzhalter-Icon -->
@@ -33,22 +35,22 @@
               <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2-8 4v2h16v-2c0-2-3.58-4-8-4Z"/>
             </svg>
           </span>
-        </button>
+                </button>
 
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-          <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
-        </ul>
-      </div>
-    </nav>
-  </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
 </header>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    <section class="container flash-wrap" style="max-width:520px;" aria-label="Benachrichtigungen">
-      <div class="flash-stack">
+{% if messages %}
+<section class="container flash-wrap" style="max-width:520px;" aria-label="Benachrichtigungen">
+    <div class="flash-stack">
         {% for category, message in messages %}
-          <div class="alert flash-pill flash-{{ category }} alert-dismissible fade show" role="alert">
+        <div class="alert flash-pill flash-{{ category }} alert-dismissible fade show" role="alert">
             <span class="flash-dot" aria-hidden="true"></span>
             <p class="flash-text m-0">{{ message }}</p>
 
@@ -56,235 +58,84 @@
                     class="btn-close flash-close"
                     data-bs-dismiss="alert"
                     aria-label="Schließen"></button>
-          </div>
+        </div>
         {% endfor %}
-      </div>
-    </section>
-    <br>
-  {% endif %}
+    </div>
+</section>
+<br>
+{% endif %}
 {% endwith %}
 
-
-
-
-
-
 <main class="container pb-5" style="max-width: 520px;">
-  <!-- Suche -->
-  <section aria-label="Suche" class="mb-3">
-    <form class="row g-2 align-items-center" method="get" action="">
-      <div class="col">
-        <label class="visually-hidden" for="search">Suchen</label>
-        <input id="search" name="q" type="search"
-               class="form-control form-control-lg rounded-pill"
-               placeholder="Suchen..">
-      </div>
-      <div class="col-auto">
-        <button class="btn btn-secondary btn-lg rounded-pill px-4" type="submit">Suchen</button>
-      </div>
-    </form>
-  </section>
-
-  <!-- Meine Gruppen -->
-  <section aria-labelledby="my-groups-title" class="mb-4">
-    <h2 id="my-groups-title" class="fw-semibold mb-3 all-grp">Meine Gruppen</h2>
-
-    <ul class="list-unstyled vstack gap-3 m-0">
-      <!-- ITEMS -->
-      <li>
-        <button
-          type="button"
-          class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow"
-          data-bs-toggle="collapse"
-          data-bs-target="#myGroup1"
-          aria-expanded="false"
-          aria-controls="myGroup1"
-        >
-          <span class="fw-semibold">Gruppentitel</span>
-          <span class="text-muted fw-semibold grp-nr">1 / 32</span>
-        </button>
-
-        <div id="myGroup1" class="collapse">
-          <div class="mt-2 px-3">
-            <div class="border rounded-4 p-3 bg-body">
-              <p class="mb-2 text-muted">
-                Kurzinfo: Thema/Level · Nächstes Treffen: Di 18:00 · Ort: Online
-              </p>
-
-              <dl class="row mb-3">
-                <dt class="col-5 text-muted">Erstellt von</dt>
-                <dd class="col-7 mb-0">Max Mustermann</dd>
-
-                <dt class="col-5 text-muted">Beschreibung</dt>
-                <dd class="col-7 mb-0">Mathe Abiturvorbereitung, wöchentlich.</dd>
-              </dl>
-
-              <div class="d-flex justify-content-end">
-                <a class="open btn btn-first rounded-pill px-4"
-                   href="{{ url_for('group_overview', group_id=1) }}">
-                  Öffnen
-                </a>
-              </div>
+    <!-- Suche -->
+    <section aria-label="Suche" class="mb-3">
+        <form class="row g-2 align-items-center" method="get" action="">
+            <div class="col">
+                <label class="visually-hidden" for="search">Suchen</label>
+                <input id="search" name="q" type="search"
+                       class="form-control form-control-lg rounded-pill"
+                       placeholder="Suchen..">
             </div>
-          </div>
-        </div>
-      </li>
-    </ul>
-  </section>
-
-  <section aria-labelledby="all-groups-title">
-    <h2 id="all-groups-title" class="fw-semibold mb-3" style="font-size:1.75rem;">
-    Alle Gruppen
-    </h2>
-
-    {% if groups %}
-      <ul class="list-unstyled vstack gap-3 m-0">
-        {% for group in groups %}
-          <li>
-            <!-- Klickbare Gruppenzeile -->
-            <button
-              type="button"
-              class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between
-              pill-row pill-shadow {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %}pill-dashed{% endif %}"
-              data-bs-toggle="collapse"
-              data-bs-target="#group{{ group.id }}"
-              aria-expanded="false"
-              aria-controls="group{{ group.id }}"
-            >
-              <div class="d-flex flex-column">
-                <span class="fw-semibold">{{ group.name }}</span>
-
-                {% if group.appointment %}
-                  <small class="text-muted d-flex align-items-center gap-2">
-
-                    <!-- Datum -->
-                    <span>
-                      Wann: {{ group.appointment | dt_local }}
-                    </span>
-
-                    <!-- Status Badge -->
-                    {% set status = group_meta[group.id].status %}
-                    {% if status == "past" %}
-                      <span class="badge rounded-pill text-bg-secondary">abgelaufen</span>
-                    {% elif status == "today" %}
-                      <span class="badge rounded-pill text-bg-warning">heute</span>
-                    {% elif status == "future" %}
-                      <span class="badge rounded-pill text-bg-info">geplant</span>
-                    {% endif %}
-                  </small>
-                {% endif %}
-                <small class="text-muted d-flex align-items-center gap-2">
-                  <span>
-                    Wo: {{ group.place }}
-                  </span>
-                </small>
-              </div>
-
-              <!-- Platzhalter für Mitglieder, falls du das später hast -->
-              <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
-                {{ group.grade or "-" }}
-              </span>
-            </button>
-
-            <!-- Summary -->
-            <div id="group{{ group.id }}" class="collapse">
-              <div class="mt-2 px-3">
-                <div class="border rounded-4 p-3 bg-body">
-                  <p class="mb-2 text-muted grp-name">
-                    <strong>Fach:</strong> {{ group.subject or "—" }} ·
-                    <strong>Stufe:</strong> {{ group.grade or "—" }}
-                  </p>
-                  <p class="mb-3 grp-name">
-                    <strong>Thema:</strong> {{ group.topic }}
-                  </p>
-
-                  <div class="d-flex justify-content-end">
-
-                    <!--IF ADMIN v-->
-                    <form method="post"
-                      action="{{ url_for('delete_group_route', group_id=group.id) }}"
-                      onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
-                      class="m-0">
-                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-                      <button type="submit"
-                              class="btn btn-outline-danger rounded-pill px-4">
-                        Löschen
-                      </button>
-                    </form>
-                    <!--IF ADMIN ^-->
-                    <!--vvvvvvv später ersetzen mit group.owner== current_user.id vvvvvvv-->
-                  {% if group.owner == 1 %}<!-- DAS DA -->
-                    <button
-                      type="button"
-                      class="btn btn-outline-primary rounded-pill px-4"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editGroupModal"
-                      data-group-id="{{ group.id }}"
-                      data-group-name="{{ group.name }}"
-                      data-group-grade="{{ group.grade or '' }}"
-                      data-group-subject="{{ group.subject or '' }}"
-                      data-group-topic="{{ group.topic or '' }}"
-                      data-group-appointment="{{ group.appointment or '' }}"
-                      data-group-place="{{ group.place or '' }}"
-                    >
-                      Bearbeiten
-                    </button>
-                  {% endif %}
-                    <form method="post" action="{{ url_for('join_group', group_id=group.id) }}">
-                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                      <button
-                        type="submit"
-                        class="btn rounded-pill px-4 text-white btn-disabled"
-                        {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %} disabled aria-disabled="true" {% endif %}
-                      >
-                        Beitreten
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
+            <div class="col-auto">
+                <button class="btn btn-secondary btn-lg rounded-pill px-4" type="submit">Suchen</button>
             </div>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="text-muted">Es sind noch keine Gruppen vorhanden.</p>
-    {% endif %}
+        </form>
+    </section>
 
-      <!-- FULL -->
-      <li>
-        <button
-          type="button"
-          class="w-100 text-start border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-dashed"
-          data-bs-toggle="collapse"
-          data-bs-target="#allGroupFull"
-          aria-expanded="false"
-          aria-controls="allGroupFull"
-        >
-          <span class="fw-semibold text-muted">Gruppentitel</span>
-          <span class="text-muted fw-semibold grp-nr">32 / 32</span>
-        </button>
+    <!-- User -->
+    <section aria-labelledby="users-title" class="mb-4">
+        <h2 id="users-title" class="fw-semibold mb-3 all-grp">User</h2>
 
-        <div id="allGroupFull" class="collapse">
-          <div class="mt-2 px-3">
-            <div class="border rounded-4 p-3 bg-body">
-              <p class="mb-3 text-muted">
-                Diese Gruppe ist voll. Du kannst sie beobachten oder später beitreten, falls ein Platz frei wird.
-              </p>
-
-              <div class="d-flex justify-content-end gap-2">
-                <button class="btn rounded-pill px-4 text-white btn-disabled"
-                        type="button" disabled>
-                  Beitreten
+        {% if users %}
+        <ul class="list-unstyled vstack gap-3 m-0">
+            <!-- ITEMS -->
+            {% for user in users %}
+            <li>
+                <button
+                        type="button"
+                        class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow
+                        {% if user.is_active == false %}pill-dashed{% endif %}"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#User1"
+                        aria-expanded="false"
+                        aria-controls="User1"
+                >
+                    <span class="fw-semibold">{{ user.first_name }} {{ user.last_name }}</span>
+                    <span class="text-muted fw-semibold user-role">{{ user.role }}</span>
                 </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
-    </ul>
-  </section>
+
+                <div id="User1" class="collapse">
+                    <div class="mt-2 px-3">
+                        <div class="border rounded-4 p-3 bg-body">
+                            <p class="mb-2">
+                                <strong>E-Mail:</strong> {{ user.email }}
+                            </p>
+
+                            <div class="d-flex justify-content-end">
+                                {% if user.is_active %}
+                                <a class="open btn btn-danger rounded-pill px-4"
+                                   href="{{ url_for('account_deactivate',_method='POST', user_id=user.id) }}">
+                                    Account Deaktivieren
+                                </a>
+                                {% else %}
+                                <a class="open btn btn-success rounded-pill px-4"
+                                   href="{{ url_for('account_activate',_method='POST', user_id=user.id) }}">
+                                    Account Aktivieren
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">Es sind noch keine User vorhanden.</p>
+        {% endif %}
+    </section>
+
+
 </main>
 
 <!-- Modal: Gruppe editieren -->
@@ -295,13 +146,13 @@
 
 <!-- Floating Action Button -->
 <button
-  type="button"
-  class="btn-create position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none border-0"
-  data-bs-toggle="modal"
-  data-bs-target="#createGroupModal"
-  aria-label="Neue Lerngruppe erstellen"
+        type="button"
+        class="btn-create position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none border-0"
+        data-bs-toggle="modal"
+        data-bs-target="#createGroupModal"
+        aria-label="Neue Lerngruppe erstellen"
 >
-  <span class="plus text-white fw-bold">+</span>
+    <span class="plus text-white fw-bold">+</span>
 </button>
 
 </body>
