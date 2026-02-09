@@ -126,8 +126,13 @@ def register_account():
 
 @app.route("/create_account", methods=['POST'])
 def create_account():
-    service_create_account()
-    return redirect(url_for('index'))
+    errors = service_create_account()
+    if not errors:
+        return redirect(url_for('index'))
+    else:
+        for e in errors:
+            flash(e, "danger")
+        return redirect(url_for('register_account'))
 
 
 @app.route("/groups/<int:group_id>", methods=["GET"])
