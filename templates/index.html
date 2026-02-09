@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/css/style.css">
-    <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
-    <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
-    <script src="static/js/bootstrap.bundle.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="static/css/bootstrap.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+  <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
+  <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
+  <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/tool.js') }}"></script>
 
-    <title>Lerngruppen-Tool</title>
+  <title>Lerngruppen-Tool</title>
 </head>
 <body>
 <header class="container py-4" style="max-width: 520px;">
@@ -42,28 +43,59 @@
   </div>
 </header>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <section class="container flash-wrap" style="max-width:520px;" aria-label="Benachrichtigungen">
+      <div class="flash-stack">
+        {% for category, message in messages %}
+          <div class="alert flash-pill flash-{{ category }} alert-dismissible fade show" role="alert">
+            <span class="flash-dot" aria-hidden="true"></span>
+            <p class="flash-text m-0">{{ message }}</p>
+
+            <button type="button"
+                    class="btn-close flash-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Schließen"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    <br>
+  {% endif %}
+{% endwith %}
+
+
+
+
+
+
 <main class="container pb-5" style="max-width: 520px;">
   <!-- Suche -->
   <section aria-label="Suche" class="mb-3">
-    <form class="row g-2 align-items-center" method="get" action="">
+    <form class="row g-2 align-items-center" method="get" action="{{ url_for('index') }}">
       <div class="col">
         <label class="visually-hidden" for="search">Suchen</label>
         <input id="search" name="q" type="search"
                class="form-control form-control-lg rounded-pill"
-               placeholder="Suchen..">
+               placeholder="Suchen.." value="{{ search or '' }}">
       </div>
       <div class="col-auto">
         <button class="btn btn-secondary btn-lg rounded-pill px-4" type="submit">Suchen</button>
       </div>
     </form>
   </section>
+  {% if search %}
+      <a href="{{ url_for('index') }}" class="small text-muted ms-2">
+        Suche zurücksetzen
+      </a>
+    {% endif %}
 
   <!-- Meine Gruppen -->
   <section aria-labelledby="my-groups-title" class="mb-4">
-    <h2 id="my-groups-title" class="fw-semibold mb-3" style="font-size:1.75rem;">Meine Gruppen</h2>
+    <h2 id="my-groups-title" class="fw-semibold mb-3 all-grp">Meine Gruppen</h2>
 
     <ul class="list-unstyled vstack gap-3 m-0">
-      <!-- ITEM 1 -->
+      <!-- ITEMS -->
       <li>
         <button
           type="button"
@@ -74,7 +106,7 @@
           aria-controls="myGroup1"
         >
           <span class="fw-semibold">Gruppentitel</span>
-          <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">1 / 32</span>
+          <span class="text-muted fw-semibold grp-nr">1 / 32</span>
         </button>
 
         <div id="myGroup1" class="collapse">
@@ -94,7 +126,7 @@
 
               <div class="d-flex justify-content-end">
                 <a class="open btn btn-first rounded-pill px-4"
-                   href="">
+                   href="{{ url_for('group_overview', group_id=1) }}">
                   Öffnen
                 </a>
               </div>
@@ -106,210 +138,150 @@
   </section>
 
   <section aria-labelledby="all-groups-title">
-    <h2 id="all-groups-title" class="fw-semibold mb-3" style="font-size:1.75rem;">Alle Gruppen</h2>
+    <h2 id="all-groups-title" class="fw-semibold mb-3" style="font-size:1.75rem;">
+    Alle Gruppen
+    </h2>
 
-    <ul class="list-unstyled vstack gap-3 m-0">
-      <!-- JOINABLE -->
-      <li>
-        <button
-          type="button"
-          class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow"
-          data-bs-toggle="collapse"
-          data-bs-target="#allGroup10"
-          aria-expanded="false"
-          aria-controls="allGroup10"
-        >
-          <span class="fw-semibold">Gruppentitel</span>
-          <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">1 / 32</span>
-        </button>
+    {% if groups %}
+      <ul class="list-unstyled vstack gap-3 m-0">
+        {% for group in groups %}
+          <li>
+            <!-- Klickbare Gruppenzeile -->
+            <button
+              type="button"
+              class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between
+              pill-row pill-shadow {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %}pill-dashed{% endif %} p-1"
+              data-bs-toggle="collapse"
+              data-bs-target="#group{{ group.id }}"
+              aria-expanded="false"
+              aria-controls="group{{ group.id }}"
+            >
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ group.name }}</span>
 
-        <div id="allGroup10" class="collapse">
-          <div class="mt-2 px-3">
-            <div class="border rounded-4 p-3 bg-body">
-              <p class="mb-2 text-muted">
-                Kurzinfo: Englisch B2 · Treffen: Mi 19:00 · Online
-              </p>
+                {% if group.appointment %}
+                  <small class="text-muted d-flex align-items-center gap-2">
 
-              <dl class="row mb-3">
-                <dt class="col-5 text-muted">Schwerpunkte</dt>
-                <dd class="col-7 mb-0">Speaking, Vocabulary</dd>
-              </dl>
+                    <!-- Datum -->
+                    <span>
+                      Wann: {{ group.appointment | dt_local }}
+                    </span>
 
-              <div class="d-flex justify-content-end">
-                <form method="post" action="" class="m-0">
-                  <button class="btn rounded-pill px-4 text-white"
-                          style="background:#2FA6A3;border-color:#2FA6A3;"
-                          type="submit">
-                    Beitreten
-                  </button>
-                </form>
+                    <!-- Status Badge -->
+                    {% set status = group_meta[group.id].status %}
+                    {% if status == "past" %}
+                      <span class="badge rounded-pill text-bg-secondary">abgelaufen</span>
+                    {% elif status == "today" %}
+                      <span class="badge rounded-pill text-bg-warning">heute</span>
+                    {% elif status == "future" %}
+                      <span class="badge rounded-pill text-bg-info">geplant</span>
+                    {% endif %}
+                  </small>
+                {% endif %}
+                <small class="text-muted d-flex align-items-center gap-2">
+                  <span>
+                    Wo: {{ group.place }}
+                  </span>
+                </small>
+              </div>
+
+              <!-- Platzhalter für Mitglieder, falls du das später hast -->
+              <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
+                {{ group.grade or "-" }}
+              </span>
+            </button>
+
+            <!-- Summary -->
+            <div id="group{{ group.id }}" class="collapse">
+              <div class="mt-2 px-3">
+                <div class="border rounded-4 p-3 bg-body">
+                  <p class="mb-2 text-muted grp-name">
+                    <strong>Fach:</strong> {{ group.subject or "—" }} ·
+                    <strong>Stufe:</strong> {{ group.grade or "—" }}
+                  </p>
+                  <p class="mb-3 grp-name">
+                    <strong>Thema:</strong> {{ group.topic }}
+                  </p>
+
+                  <div class="d-flex justify-content-end">
+
+                    <!--IF ADMIN v-->
+                    <form method="post"
+                      action="{{ url_for('delete_group_route', group_id=group.id) }}"
+                      onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
+                      class="m-0">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                      <button type="submit"
+                              class="btn btn-outline-danger rounded-pill px-4">
+                        Löschen
+                      </button>
+                    </form>
+                    <!--IF ADMIN ^-->
+                    <!--vvvvvvv später ersetzen mit group.owner== current_user.id vvvvvvv-->
+                  {% if group.owner == 1 %}<!-- DAS DA -->
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary rounded-pill px-4"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editGroupModal"
+                      data-group-id="{{ group.id }}"
+                      data-group-name="{{ group.name }}"
+                      data-group-grade="{{ group.grade or '' }}"
+                      data-group-subject="{{ group.subject or '' }}"
+                      data-group-topic="{{ group.topic or '' }}"
+                      data-group-appointment="{{ group.appointment or '' }}"
+                      data-group-place="{{ group.place or '' }}"
+                    >
+                      Bearbeiten
+                    </button>
+                  {% endif %}
+                    <form method="post" action="{{ url_for('join_group', group_id=group.id) }}">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button
+                        type="submit"
+                        class="btn rounded-pill px-4 text-white btn-disabled"
+                        {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %} disabled aria-disabled="true" {% endif %}
+                      >
+                        Beitreten
+                      </button>
+                    </form>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </li>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted">Es sind noch keine Gruppen vorhanden.</p>
+    {% endif %}
 
-      <!-- FULL / DISABLED -->
-      <li>
-        <button
-          type="button"
-          class="w-100 text-start border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-dashed"
-          data-bs-toggle="collapse"
-          data-bs-target="#allGroupFull"
-          aria-expanded="false"
-          aria-controls="allGroupFull"
-        >
-          <span class="fw-semibold text-muted">Gruppentitel</span>
-          <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">32 / 32</span>
-        </button>
-
-        <div id="allGroupFull" class="collapse">
-          <div class="mt-2 px-3">
-            <div class="border rounded-4 p-3 bg-body">
-              <p class="mb-3 text-muted">
-                Diese Gruppe ist voll. Du kannst sie beobachten oder später beitreten, falls ein Platz frei wird.
-              </p>
-
-              <div class="d-flex justify-content-end gap-2">
-                <button class="btn rounded-pill px-4 text-white"
-                        style="background:#2FA6A3;border-color:#2FA6A3;"
-                        type="button" disabled>
-                  Beitreten
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </li>
+    {% if not groups %}
+      <div class="text-center text-muted py-4">
+        Keine Gruppen gefunden{% if search %} für „{{ search }}“{% endif %}.
+      </div>
+    {% endif %}
     </ul>
   </section>
 </main>
 
+<!-- Modal: Gruppe editieren -->
+{% include "modals/edit_modal.html" %}
+
 <!-- Modal: Gruppe erstellen -->
-<div class="modal fade" id="createGroupModal" tabindex="-1"
-     aria-labelledby="createGroupTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
-    <div class="modal-content border-0" style="border-radius:24px;">
-      <header class="modal-header border-0 pb-0">
-        <h2 id="createGroupTitle" class="modal-title fw-bold" style="letter-spacing:.5px;">
-          Neue Gruppe
-        </h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-      </header>
-
-      <div class="modal-body pt-3">
-        <form method="post" action=""
-              class="needs-validation" novalidate>
-
-          <!-- Name -->
-          <div class="mb-3">
-            <label for="group_name" class="form-label fw-semibold">Name</label>
-            <input
-              type="text"
-              id="group_name"
-              name="name"
-              class="form-control form-control-lg rounded-pill"
-              placeholder="z.B. Mathe Lerngruppe"
-              required
-              minlength="3"
-            >
-            <div class="invalid-feedback">Bitte gib einen Gruppennamen ein (mind. 3 Zeichen).</div>
-          </div>
-
-          <!-- Stufe (Dropdown) -->
-          <div class="mb-3">
-            <label for="group_level" class="form-label fw-semibold">Stufe</label>
-            <select
-              id="group_level"
-              name="stufe"
-              class="form-select form-select-lg rounded-pill"
-              required
-            >
-              <option value="" selected disabled>Bitte auswählen…</option>
-              <option value="Unterstufe">Unterstufe</option>
-              <option value="Mittelstufe">Mittelstufe</option>
-              <option value="Oberstufe">Oberstufe</option>
-            </select>
-            <div class="invalid-feedback">Bitte wähle eine Stufe aus.</div>
-          </div>
-
-          <!-- Fach -->
-          <div class="mb-3">
-            <label for="group_subject" class="form-label fw-semibold">Fach</label>
-            <input
-              type="text"
-              id="group_subject"
-              name="fach"
-              class="form-control form-control-lg rounded-pill"
-              placeholder="z.B. Mathematik"
-              required
-              minlength="3"
-            >
-            <div class="invalid-feedback">Bitte gib ein Fach an (mind. 3 Zeichen).</div>
-          </div>
-
-          <!-- Thema -->
-          <div class="mb-3">
-            <label for="group_topic" class="form-label fw-semibold">Thema</label>
-            <input
-              type="text"
-              id="group_topic"
-              name="thema"
-              class="form-control form-control-lg rounded-pill"
-              placeholder="z.B. Lineare Funktionen"
-              required
-              minlength="3"
-            >
-            <div class="invalid-feedback">Bitte gib ein Thema an (mind. 3 Zeichen).</div>
-          </div>
-
-          <footer class="d-flex gap-2 pt-2">
-            <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill flex-grow-1"
-                    data-bs-dismiss="modal">
-              Abbrechen
-            </button>
-
-            <button type="submit" class="btn btn-primary btn-lg rounded-pill flex-grow-1">
-              Erstellen
-            </button>
-          </footer>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-
+{% include "modals/create_modal.html" %}
 
 <!-- Floating Action Button -->
 <button
   type="button"
-  class="position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none border-0"
-  style="width:96px;height:96px;border-radius:999px;background:#4C86C6;box-shadow:0 10px 25px rgba(0,0,0,.18);"
+  class="btn-create position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none border-0"
   data-bs-toggle="modal"
   data-bs-target="#createGroupModal"
   aria-label="Neue Lerngruppe erstellen"
 >
-  <span class="text-white fw-bold" style="font-size:44px;line-height:0;">+</span>
+  <span class="plus text-white fw-bold">+</span>
 </button>
-
-
-
-<script>
-  (() => {
-    'use strict';
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.from(forms).forEach(form => {
-      form.addEventListener('submit', event => {
-        if (!form.checkValidity()) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-      }, false);
-    });
-  })();
-</script>
 
 </body>
 </html>

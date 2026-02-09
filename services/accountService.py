@@ -3,7 +3,6 @@ from flask import request, session, flash, redirect, url_for
 
 
 def create_account():
-
     form_data = get_form_data()
 
     account = AccountModel(
@@ -35,6 +34,7 @@ def login_user():
         session["account"] = True
 
     return redirect(url_for("index"))
+
 
 def get_form_data():
     return {

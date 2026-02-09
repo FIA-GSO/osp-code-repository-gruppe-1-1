@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
 
 from database.model.base import db
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, or_
 from datetime import datetime
+import time
+
 
 class GroupModel(db.Model):
     __tablename__ = 'group'
@@ -13,29 +15,36 @@ class GroupModel(db.Model):
     klasse = db.Column(db.String(255), nullable=True)
     grade = db.Column(db.String(255), nullable=True)
     subject = db.Column(db.String(255), nullable=True)
-    topic = db.Column(db.String(255), nullable=True)
+    topic = db.Column(db.String(255), nullable=False)
+    place = db.Column(db.String(255), nullable=False, default="Online")
+    appointment = db.Column(db.Integer, nullable=False, comment="Unix timestamp (seconds)")
     is_active = db.Column(db.Boolean, nullable=False, default=True)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    updated = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-def create_group(account):
+def save_group(group: GroupModel) -> GroupModel:
     with Session(db.engine) as session:
-        session.add(account)
+        session.add(group)
         session.commit()
-        session.refresh(account)
-        return account
+        session.refresh(group)
+        return group
 
 
-def edit_group(group_id, dict):
+def edit_group(group_id: int, data: dict) -> None:
     with Session(db.engine) as session:
-        account = GroupModel.query.get(group_id)
-        account.update(dict)
+        group = session.get(GroupModel, group_id)
+        if not group:
+            return
+        for key, value in data.items():
+            setattr(group, key, value)
         session.commit()
 
 
-def delete_group(group_id):
+def delete_group(group_id: int) -> None:
     with Session(db.engine) as session:
-        account = GroupModel.query.get(group_id)
-        session.delete(account)
+        group = session.get(GroupModel, group_id)
+        if not group:
+            return
+        session.delete(group)
         session.commit()

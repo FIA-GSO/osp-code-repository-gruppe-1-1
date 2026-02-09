@@ -1,9 +1,8 @@
 from sqlalchemy import CheckConstraint
 from datetime import datetime
-
 from sqlalchemy.orm import Session
-
 from database.model.base import db
+
 
 class AccountModel(db.Model):
     __tablename__ = 'account'

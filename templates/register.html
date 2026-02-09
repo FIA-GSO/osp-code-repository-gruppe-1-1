@@ -28,6 +28,7 @@
           class="needs-validation" novalidate>
 
       <div class="mb-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="first_name" class="form-label fw-semibold">Name</label>
         <input
           type="text"
@@ -111,19 +112,86 @@
 </main>
 
 <script>
-  // Bootstrap 5 Validation (Standard Pattern)
   (() => {
     'use strict';
+
     const forms = document.querySelectorAll('.needs-validation');
 
-    Array.from(forms).forEach(form => {
-      form.addEventListener('submit', event => {
-        // Extra: Email-Domain aktiv prüfen (zusätzlich zum pattern)
-        const email = form.querySelector('#email');
-        if (email) {
-          const ok = /^[A-Za-z0-9._%+\-]+@gso\.schule\.koeln$/.test(email.value.trim());
-          email.setCustomValidity(ok ? '' : 'invalid-domain');
+    const validateField = (field) => {
+      if (!field || field.disabled) return;
+
+      const ok = field.checkValidity();
+
+      field.classList.toggle('is-valid', ok);
+      field.classList.toggle('is-invalid', !ok);
+    };
+
+    const enforceGsoDomainIfNeeded = (field) => {
+      if (!field) return;
+
+      const id = field.id || '';
+      const name = field.name || '';
+
+      // Greift für Register-Email (#email) und Login-Email (#login_email) oder allgemein name="email"
+      const isEmailField =
+        id === 'email' || id === 'login_email' || name === 'email';
+
+      if (!isEmailField) return;
+
+      const value = (field.value || '').trim();
+      const ok = /^[A-Za-z0-9._%+\-]+@gso\.schule\.koeln$/.test(value);
+
+      if (value === '') {
+        field.setCustomValidity('');
+        return;
+      }
+
+      field.setCustomValidity(ok ? '' : 'invalid-domain');
+    };
+
+    Array.from(forms).forEach((form) => {
+      const fields = form.querySelectorAll('input, select, textarea');
+
+      fields.forEach((field) => {
+        const tag = field.tagName.toLowerCase();
+        const type = (field.getAttribute('type') || '').toLowerCase();
+
+        if (tag === 'select') {
+          field.addEventListener('change', () => {
+            validateField(field);
+          });
+          return;
         }
+
+        if (type === 'password') {
+          field.addEventListener('input', () => {
+            validateField(field);
+          });
+          field.addEventListener('blur', () => {
+            validateField(field);
+          });
+          return;
+        }
+
+        field.addEventListener('blur', () => {
+          enforceGsoDomainIfNeeded(field); // relevant bei Email
+          validateField(field);
+        });
+
+        if (type === 'email') {
+          field.addEventListener('change', () => {
+            enforceGsoDomainIfNeeded(field);
+            validateField(field);
+          });
+        }
+      });
+
+      form.addEventListener('submit', (event) => {
+        fields.forEach((field) => {
+          // Domain-Regel vor checkValidity setzen
+          enforceGsoDomainIfNeeded(field);
+          validateField(field);
+        });
 
         if (!form.checkValidity()) {
           event.preventDefault();
@@ -135,6 +203,7 @@
     });
   })();
 </script>
+
 
 </body>
 </html>
