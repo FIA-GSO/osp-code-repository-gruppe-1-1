@@ -43,6 +43,27 @@
   </div>
 </header>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <section class="container flash-wrap" style="max-width:520px;" aria-label="Benachrichtigungen">
+      <div class="flash-stack">
+        {% for category, message in messages %}
+          <div class="alert flash-pill flash-{{ category }} alert-dismissible fade show" role="alert">
+            <span class="flash-dot" aria-hidden="true"></span>
+            <p class="flash-text m-0">{{ message }}</p>
+
+            <button type="button"
+                    class="btn-close flash-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Schließen"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    <br>
+  {% endif %}
+{% endwith %}
+
 <main class="container app-shell">
   <!-- Subbar: Back + Group title + Edit -->
   <section class="subbar" aria-label="Gruppen-Kopfzeile">
