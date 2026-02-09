@@ -6,10 +6,12 @@ from sqlalchemy import or_, and_
 from database.model.base import db
 from database.model.groupModel import GroupModel, save_group, delete_group
 from services.accountService import create_account as service_create_account, login_user as service_login_user
+from flask_bcrypt import Bcrypt
 
 ALLOWED_GRADES = {"Unterstufe", "Mittelstufe", "Oberstufe"}
 
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 app.config["SECRET_KEY"] = "dlajwasdhdddqwf98fg9f23803f"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

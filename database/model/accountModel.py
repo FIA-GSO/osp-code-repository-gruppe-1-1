@@ -26,13 +26,11 @@ def create_account(account):
         db_session.refresh(account)
         return account
 
-
 def edit_account(account_id, dict):
     with Session(db.engine) as db_session:
         account = AccountModel.query.get(account_id)
         account.update(dict)
         db_session.commit()
-
 
 def delete_account(account_id):
     with Session(db.engine) as db_session:
