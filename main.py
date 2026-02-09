@@ -11,7 +11,7 @@ from database.model.groupMemberModel import GroupMemberModel
 from database.model.accountModel import AccountModel
 from services.accountService import create_account as service_create_account, login_user as service_login_user
 from database.model.groupActionModel import GroupActionModel
-
+# @todo: gruppen nicht aufrufen wenn nicht drin, weil sonst kann auch schreiben, und beim schreiben checken ob in gruppe
 ALLOWED_GRADES = {"Unterstufe", "Mittelstufe", "Oberstufe"}
 
 app = Flask(__name__)
