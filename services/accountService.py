@@ -13,8 +13,8 @@ def create_account():
         role="USER",
     )
 
-    model_create_account(account)
-    session["account"] = True
+    newAccount = model_create_account(account)
+    session["account"] = newAccount.id
 
     return
 

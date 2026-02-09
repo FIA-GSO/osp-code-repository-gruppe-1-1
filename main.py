@@ -3,9 +3,12 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 from datetime import datetime
 import time
 from sqlalchemy import or_, and_
+from sqlalchemy.orm import joinedload
+
 from database.model.base import db
 from database.model.groupModel import GroupModel, save_group, delete_group
 from services.accountService import create_account as service_create_account, login_user as service_login_user
+from database.model.groupActionModel import GroupActionModel
 
 ALLOWED_GRADES = {"Unterstufe", "Mittelstufe", "Oberstufe"}
 
@@ -151,6 +154,16 @@ def group_overview(group_id):
     now = int(time.time())
     appointment_is_past = bool(group.appointment and int(group.appointment) < now)
 
+    messages = (
+        GroupActionModel.query
+        .options(joinedload(GroupActionModel.account))
+        .filter_by(group_id=group_id, type="MESSAGE")
+        .order_by(GroupActionModel.created.asc())
+        .all()
+    )
+
+    current_user_id = session.get("account")
+
     return render_template(
         "group_overview.html",
         group=group,
@@ -159,6 +172,8 @@ def group_overview(group_id):
         owner_name=owner_name,
         class_grade=class_grade,
         appointment_is_past=appointment_is_past,
+        messages=messages,
+        current_user_id=current_user_id,
     )
 
 
@@ -322,6 +337,41 @@ def edit_group_route(group_id):
     flash("Gruppe wurde aktualisiert.", "success")
     return redirect(url_for("index"))
 
+@app.route("/groups/<int:group_id>/messages", methods=["POST"])
+def send_group_message(group_id):
+    if session.get("account") is None:
+        flash("Bitte zuerst einloggen.", "danger")
+        return redirect(url_for("login"))
+
+    group = GroupModel.query.get(group_id)
+    if not group or not group.is_active:
+        flash("Gruppe nicht gefunden.", "danger")
+        return redirect(url_for("index"))
+
+    text = (request.form.get("message") or "").strip()
+    if not text:
+        flash("Nachricht darf nicht leer sein.", "danger")
+        return redirect(url_for("group_overview", group_id=group_id))
+
+    if len(text) > 1000:
+        flash("Nachricht ist zu lang (max. 1000 Zeichen).", "danger")
+        return redirect(url_for("group_overview", group_id=group_id))
+
+    account_id = session.get("account")
+    if account_id is None:
+        flash("Ungültige Session.", "danger")
+        return redirect(url_for("login"))
+
+    msg = GroupActionModel(
+        group_id=group_id,
+        account_id=account_id,
+        type="MESSAGE",
+        content=text,
+    )
+    db.session.add(msg)
+    db.session.commit()
+
+    return redirect(url_for("group_overview", group_id=group_id))
 
 if __name__ == '__main__':
     app.run(port=4000, debug=True)

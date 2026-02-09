@@ -110,64 +110,39 @@
 
   <!-- Chat -->
   <section class="chat-area" aria-label="Chat">
-    <!-- Beispiel-Nachrichten (ersetzen durch Loop) -->
-    <article class="msg-row left">
-      <span class="name-pill left">Maxim Muster</span>
-      <div class="bubble">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-      </div>
-    </article>
+    <h2>Chat</h2>
 
-    <article class="msg-row left">
-      <span class="name-pill left">Maxim Muster</span>
-      <div class="bubble">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-      </div>
-    </article>
-
-    <article class="msg-row right">
-      <span class="name-pill right">Max Mustermann</span>
-      <div class="bubble">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-      </div>
-    </article>
-
-    <article class="msg-row left">
-      <span class="name-pill left">Maxim Muster</span>
-      <div class="bubble">
-        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
-        eirmod tempor invidunt ut labore et
-      </div>
-    </article>
-
-    {# Später so:
     {% for msg in messages %}
-      <article class="msg-row {{ 'right' if msg.sender_id == current_user.id else 'left' }}">
-        <span class="name-pill {{ 'right' if msg.sender_id == current_user.id else 'left' }}">{{ msg.sender_name }}</span>
-        <div class="bubble">{{ msg.text }}</div>
+      <article class="msg-row {{ 'right' if current_user_id and msg.account_id == current_user_id else 'left' }}">
+        <span class="name-pill {{ 'right' if current_user_id and msg.account_id == current_user_id else 'left' }}">
+        {{ msg.account.first_name }} {{ msg.account.last_name }}
+        </span>
+        <div class="bubble">{{ msg.content }}</div>
       </article>
     {% endfor %}
-    #}
+
+    {% if messages|length == 0 %}
+      <p class="text-muted small mb-0">Dieser Chat ist leer, schreibe die erste Nachricht.</p>
+    {% endif %}
   </section>
 
   <!-- Composer -->
   <section class="composer" aria-label="Nachricht schreiben">
-    <!--  url_for('send_message', group_id=group.id) if group else '#'   -->
-    <form method="post" action="" class="row g-2 align-items-center m-0">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <form method="post" action="{{ url_for('send_group_message', group_id=group.id) }}" class="row g-2 align-items-center m-0">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-      <div class="col">
-        <label for="message" class="visually-hidden">Nachricht</label>
-        <input id="message" name="message" type="text"
-               class="form-control"
-               placeholder="Nachricht.."
-               autocomplete="off">
-      </div>
+          <div class="col">
+            <label for="message" class="visually-hidden">Nachricht</label>
+            <input id="message" name="message" type="text"
+                   class="form-control"
+                   placeholder="Nachricht.."
+                   autocomplete="off">
+          </div>
 
-      <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Senden</button>
-      </div>
-    </form>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Senden</button>
+          </div>
+        </form>
   </section>
 </main>
 </body>
