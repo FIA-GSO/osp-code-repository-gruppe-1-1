@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="static/css/style.css">
     <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
     <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
-    <script src="static/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+<!--    <script src="{{ url_for('static', filename='js/tool.js') }}"></script>-->
 
     <title>Lerngruppen-Tool Login</title>
 </head>
@@ -18,13 +19,34 @@
   </div>
 </header>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <section class="container flash-wrap" style="max-width:520px;" aria-label="Benachrichtigungen">
+      <div class="flash-stack">
+        {% for category, message in messages %}
+          <div class="alert flash-pill flash-{{ category }} alert-dismissible fade show" role="alert">
+            <span class="flash-dot" aria-hidden="true"></span>
+            <p class="flash-text m-0">{{ message }}</p>
+
+            <button type="button"
+                    class="btn-close flash-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Schließen"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    <br>
+  {% endif %}
+{% endwith %}
+
 <main class="container py-4" style="max-width:520px;">
   <section aria-labelledby="login-title">
     <h1 id="login-title" class="fw-bold text-center mb-4" style="letter-spacing:.5px;">
       Login
     </h1>
 
-    <form method="post" action=""
+    <form method="post" action="{{ url_for('login_user') }}"
           class="needs-validation" novalidate>
 
       <div class="mb-3">
@@ -69,7 +91,8 @@
 
     <p class="text-center text-muted mt-4 mb-0">
       Noch kein Account?
-      <a href="" class="fw-semibold text-decoration-none">Registrieren</a>
+
+      <a href="{{ url_for('register_account') }}" class="fw-semibold text-decoration-none">Registrieren</a>
     </p>
   </section>
 </main>
