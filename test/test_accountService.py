@@ -1,16 +1,9 @@
 from unittest import TestCase
-
-from database.accountService import AccountService
-from sqlalchemy import create_engine
-
-from database.model.accountModel import AccountModel
+from database.model.accountModel import AccountModel, create_account
 
 
 class TestAccountService(TestCase):
     def test_create_account(self):
-        engine = create_engine("sqlite:///../instance/test.db", echo=True)
-        service = AccountService(engine)
-
         account = AccountModel(
             email="<EMAIL>",
             secret="secret",
@@ -18,7 +11,7 @@ class TestAccountService(TestCase):
             last_name="last",
             role="USER",
         )
-        new_account = service.create_account(account)
+        new_account = create_account(account)
         print(new_account.id)
 
 
