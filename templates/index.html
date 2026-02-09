@@ -96,44 +96,114 @@
 
     <ul class="list-unstyled vstack gap-3 m-0">
       <!-- ITEMS -->
-      <li>
-        <button
-          type="button"
-          class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between pill-row pill-shadow"
-          data-bs-toggle="collapse"
-          data-bs-target="#myGroup1"
-          aria-expanded="false"
-          aria-controls="myGroup1"
-        >
-          <span class="fw-semibold">Gruppentitel</span>
-          <span class="text-muted fw-semibold grp-nr">1 / 32</span>
-        </button>
+      {% if my_groups %}
+        {% for my_group in my_groups %}
+        <li>
+            <!-- Klickbare Gruppenzeile -->
+            <button
+              type="button"
+              class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between
+              pill-row pill-shadow {% if group_meta[my_group.id].status == 'past' or group_meta[my_group.id].is_full %}pill-dashed{% endif %} p-1"
+              data-bs-toggle="collapse"
+              data-bs-target="#my_group{{ my_group.id }}"
+              aria-expanded="false"
+              aria-controls="my_group{{ my_group.id }}"
+            >
+              <div class="d-flex flex-column">
+                <span class="fw-semibold">{{ my_group.name }}</span>
 
-        <div id="myGroup1" class="collapse">
-          <div class="mt-2 px-3">
-            <div class="border rounded-4 p-3 bg-body">
-              <p class="mb-2 text-muted">
-                Kurzinfo: Thema/Level · Nächstes Treffen: Di 18:00 · Ort: Online
-              </p>
+                {% if my_group.appointment %}
+                  <small class="text-muted d-flex align-items-center gap-2">
 
-              <dl class="row mb-3">
-                <dt class="col-5 text-muted">Erstellt von</dt>
-                <dd class="col-7 mb-0">Max Mustermann</dd>
+                    <!-- Datum -->
+                    <span>
+                      Wann: {{ my_group.appointment | dt_local }}
+                    </span>
 
-                <dt class="col-5 text-muted">Beschreibung</dt>
-                <dd class="col-7 mb-0">Mathe Abiturvorbereitung, wöchentlich.</dd>
-              </dl>
+                    <!-- Status Badge -->
+                    {% set status = group_meta[my_group.id].status %}
+                    {% if status == "past" %}
+                      <span class="badge rounded-pill text-bg-secondary">abgelaufen</span>
+                    {% elif status == "today" %}
+                      <span class="badge rounded-pill text-bg-warning">heute</span>
+                    {% elif status == "future" %}
+                      <span class="badge rounded-pill text-bg-info">geplant</span>
+                    {% endif %}
+                  </small>
+                {% endif %}
+                <small class="text-muted d-flex align-items-center gap-2">
+                  <span>
+                    Wo: {{ my_group.place }}
+                  </span>
+                </small>
+              </div>
 
-              <div class="d-flex justify-content-end">
-                <a class="open btn btn-first rounded-pill px-4"
-                   href="{{ url_for('group_overview', group_id=1) }}">
-                  Öffnen
-                </a>
+              <!-- Platzhalter für Mitglieder, falls du das später hast -->
+              <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
+                {{ my_group.grade or "-" }}
+              </span>
+            </button>
+
+            <!-- Summary -->
+            <div id="my_group{{ my_group.id }}" class="collapse">
+              <div class="mt-2 px-3">
+                <div class="border rounded-4 p-3 bg-body">
+                  <p class="mb-2 text-muted grp-name">
+                    <strong>Fach:</strong> {{ my_group.subject or "—" }} ·
+                    <strong>Stufe:</strong> {{ my_group.grade or "—" }}
+                  </p>
+                  <p class="mb-3 grp-name">
+                    <strong>Thema:</strong> {{ my_group.topic }}
+                  </p>
+
+                  <div class="d-flex justify-content-end">
+
+                    <!--IF ADMIN v-->
+                    <form method="post"
+                      action="{{ url_for('delete_group_route', group_id=my_group.id) }}"
+                      onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
+                      class="m-0">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                      <button type="submit"
+                              class="btn btn-outline-danger rounded-pill px-4">
+                        Löschen
+                      </button>
+                    </form>
+                    <!--IF ADMIN ^-->
+                    <!--vvvvvvv später ersetzen mit group.owner== current_user.id vvvvvvv-->
+                  {% if my_group.owner == 1 %}<!-- DAS DA -->
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary rounded-pill px-4"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editGroupModal"
+                      data-group-id="{{ my_group.id }}"
+                      data-group-name="{{ my_group.name }}"
+                      data-group-grade="{{ my_group.grade or '' }}"
+                      data-group-subject="{{ my_group.subject or '' }}"
+                      data-group-topic="{{ my_group.topic or '' }}"
+                      data-group-appointment="{{ my_group.appointment or '' }}"
+                      data-group-place="{{ my_group.place or '' }}"
+                    >
+                      Bearbeiten
+                    </button>
+                  {% endif %}
+                    <div class="d-flex justify-content-end">
+                      <a class="open btn btn-first rounded-pill px-4"
+                         href="{{ url_for('group_overview', group_id=my_group.id) }}">
+                        Öffnen
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </li>
+          </li>
+        {% endfor %}
+      {% else %}
+          <p class="text-muted">Du bist aktuell in keiner Gruppe.</p>
+      {% endif %}
     </ul>
   </section>
 
