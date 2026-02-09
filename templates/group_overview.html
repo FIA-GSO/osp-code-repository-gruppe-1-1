@@ -122,12 +122,26 @@
         <div class="mb-2"><strong>Mitglieder:</strong> ({{ member_count if member_count is defined else 2 }} / {{ group_limit if group_limit is defined else 32 }})</div>
       </div>
 
+      {% if group.owner != current_user_id %}
       <form method="post" action="{{ url_for('leave_group', group_id=group.id) }}" class="m-0">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit" class="btn btn-secondary leave-btn"
         onsubmit="return confirm('Möchtest du die Gruppe wirklich verlassen?');"
         >Verlassen</button>
       </form>
+      {% else %}
+      <form method="post"
+        action="{{ url_for('deactivate_group_route', group_id=group.id) }}"
+        onsubmit="return confirm('Möchtest du diese Gruppe wirklich deaktivieren?');"
+        class="m-0">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <button type="submit"
+                class="btn btn-outline-danger rounded-pill px-4">
+          Gruppe Löschen
+        </button>
+      </form>
+      {% endif %}
     </div>
   </section>
 

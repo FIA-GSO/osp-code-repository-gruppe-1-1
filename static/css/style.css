@@ -124,3 +124,11 @@ a {
 .all-grp {
     font-size:1.75rem;
 }
+
+.form-control::placeholder {
+  color: rgba(33, 37, 41, 0.3);
+}
+
+.on-top {
+  z-index: 1080;
+}

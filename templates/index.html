@@ -35,7 +35,7 @@
           </span>
         </button>
 
-        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm on-top">
           <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
       </div>
@@ -138,9 +138,8 @@
                 </small>
               </div>
 
-              <!-- Platzhalter für Mitglieder, falls du das später hast -->
               <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
-                {{ my_group.grade or "-" }}
+                {{ group_meta[my_group.id].member_count }}/32
               </span>
             </button>
 
@@ -160,19 +159,19 @@
 
                     <!--IF ADMIN v-->
                     <form method="post"
-                      action="{{ url_for('delete_group_route', group_id=my_group.id) }}"
-                      onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
+                      action="{{ url_for('deactivate_group_route', group_id=my_group.id) }}"
+                      onsubmit="return confirm('Möchtest du diese Gruppe wirklich deaktivieren?');"
                       class="m-0">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                       <button type="submit"
                               class="btn btn-outline-danger rounded-pill px-4">
-                        Löschen
+                        Deaktivieren
                       </button>
                     </form>
                     <!--IF ADMIN ^-->
                     <!--vvvvvvv später ersetzen mit group.owner== current_user.id vvvvvvv-->
-                  {% if my_group.owner == 1 %}<!-- DAS DA -->
+                  {% if my_group.owner == account_id %}<!-- DAS DA -->
                     <button
                       type="button"
                       class="btn btn-outline-primary rounded-pill px-4"
@@ -255,9 +254,8 @@
                 </small>
               </div>
 
-              <!-- Platzhalter für Mitglieder, falls du das später hast -->
               <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
-                {{ group.grade or "-" }}
+                {{ group_meta[group.id].member_count }}/32
               </span>
             </button>
 
@@ -274,8 +272,7 @@
                   </p>
 
                   <div class="d-flex justify-content-end">
-
-                    <!--IF ADMIN v-->
+                  {% if group.owner == account_id %}
                     <form method="post"
                       action="{{ url_for('delete_group_route', group_id=group.id) }}"
                       onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
@@ -287,9 +284,7 @@
                         Löschen
                       </button>
                     </form>
-                    <!--IF ADMIN ^-->
-                    <!--vvvvvvv später ersetzen mit group.owner== current_user.id vvvvvvv-->
-                  {% if group.owner == 1 %}<!-- DAS DA -->
+
                     <button
                       type="button"
                       class="btn btn-outline-primary rounded-pill px-4"

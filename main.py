@@ -3,6 +3,7 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 import time
+from functools import wraps
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload
 from database.model.base import db
@@ -12,6 +13,44 @@ from database.model.accountModel import AccountModel
 from services.accountService import create_account as service_create_account, login_user as service_login_user
 from database.model.groupActionModel import GroupActionModel
 # @todo: gruppen nicht aufrufen wenn nicht drin, weil sonst kann auch schreiben, und beim schreiben checken ob in gruppe
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if session.get("account_id") is None:
+            flash("Bitte zuerst einloggen.", "danger")
+            return redirect(url_for("login"))
+        return view(*args, **kwargs)
+    return wrapped
+
+
+def admin_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if session.get("account_id") is None:
+            flash("Bitte zuerst einloggen.", "danger")
+            return redirect(url_for("login"))
+
+        acc = AccountModel.query.get(session["account_id"])
+        if not acc or acc.role != "ADMIN":
+            flash("Keine Berechtigung.", "danger")
+            return redirect(url_for("index"))
+
+        return view(*args, **kwargs)
+    return wrapped
+
+
+def require_membership(group_id: int):
+    account_id = session.get("account_id")
+    membership = GroupMemberModel.query.filter_by(
+        group_id=group_id,
+        account_id=account_id,
+        accepted=True
+    ).first()
+    return membership is not None
+
+
 ALLOWED_GRADES = {"Unterstufe", "Mittelstufe", "Oberstufe"}
 
 app = Flask(__name__)
@@ -77,7 +116,6 @@ def index():
                 )
             )
 
-            # gleiche Suche auch auf "Meine Gruppen" anwenden
             if search:
                 from sqlalchemy import or_
                 like = f"%{search}%"
@@ -99,10 +137,9 @@ def index():
         group_meta = {}
 
         for g in groups_for_meta:
-            status = None  # None | today | past | future
+            status = None
 
-            # Platzhalter (später echte Member-Zahl)
-            member_count = 2  # Hier member anzahl aus db holen
+            member_count = GroupMemberModel.query.filter_by(group_id=g.id).count()
             group_limit = 32
             is_full = member_count >= group_limit
 
@@ -126,6 +163,7 @@ def index():
 
         return render_template(
             "index.html",
+            account_id=account_id,
             my_groups=my_groups,
             groups=groups,
             group_meta=group_meta,
@@ -170,12 +208,16 @@ def create_account():
 
 
 @app.route("/groups/<int:group_id>", methods=["GET"])
+@login_required
 def group_overview(group_id):
-    # Gruppe laden
     group = GroupModel.query.get(group_id)
 
     if not group or not group.is_active:
         flash("Gruppe nicht gefunden.", "danger")
+        return redirect(url_for("index"))
+
+    if not require_membership(group_id):
+        flash("Du bist kein Mitglied dieser Gruppe.", "danger")
         return redirect(url_for("index"))
 
     # --- Platzhalter / vorbereitete Werte ---
@@ -216,12 +258,8 @@ def group_overview(group_id):
 
 
 @app.route("/groups/<int:group_id>/join", methods=["POST"])
+@login_required
 def join_group(group_id):
-    # 1️⃣ Eingeloggt?
-    if not session.get("account_id") or not session.get("account_id"):
-        flash("Bitte zuerst einloggen.", "danger")
-        return redirect(url_for("login"))
-
     account_id = session["account_id"]
 
     group = GroupModel.query.get(group_id)
@@ -249,6 +287,7 @@ def join_group(group_id):
     member = GroupMemberModel(
         account_id=account_id,
         group_id=group_id,
+        member_count=member_count,
     )
 
     db.session.add(member)
@@ -259,11 +298,8 @@ def join_group(group_id):
 
 
 @app.route("/groups/<int:group_id>/leave", methods=["POST"])
+@login_required
 def leave_group(group_id):
-    if not session.get("account_id") or not session.get("account_id"):
-        flash("Bitte zuerst einloggen.", "danger")
-        return redirect(url_for("login"))
-
     account_id = int(session["account_id"])
 
     group = GroupModel.query.get(group_id)
@@ -293,8 +329,8 @@ def leave_group(group_id):
 
 
 @app.route("/groups/create", methods=["POST"])
+@login_required
 def create_group():
-    # @todo: auch automatisch joinen beim erstellen
     account_id = session["account_id"]
     group_count = GroupModel.query.filter_by(
         owner=account_id,
@@ -313,7 +349,6 @@ def create_group():
     appointment_raw = request.form.get("appointment")
     place = (request.form.get("place") or "").strip()
 
-    appointment_ts = None
     if appointment_raw:
         dt = datetime.fromisoformat(appointment_raw)
         appointment_ts = int(dt.timestamp())
@@ -355,6 +390,7 @@ def create_group():
 
 
 @app.route("/groups/<int:group_id>/delete", methods=["POST"])
+@login_required
 def delete_group_route(group_id):
     # Gruppe laden
     group = GroupModel.query.get(group_id)
@@ -376,6 +412,7 @@ def delete_group_route(group_id):
 
 
 @app.route("/groups/<int:group_id>/deactivate", methods=["POST"])
+@login_required
 def deactivate_group_route(group_id):
     group = GroupModel.query.get(group_id)
 
@@ -396,6 +433,7 @@ def deactivate_group_route(group_id):
 
 
 @app.route("/groups/<int:group_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_group_route(group_id):
     group = GroupModel.query.get(group_id)
     if not group:
@@ -457,19 +495,15 @@ def edit_group_route(group_id):
 
 
 @app.route("/groups/<int:group_id>/messages", methods=["POST"])
+@login_required
 def send_group_message(group_id):
-    if session.get("account_id") is None:
-        flash("Bitte zuerst einloggen.", "danger")
-        return redirect(url_for("login"))
-
-    account_id = session.get("account_id")
-    if account_id is None:
-        flash("Ungültige Session.", "danger")
-        return redirect(url_for("login"))
-
     group = GroupModel.query.get(group_id)
     if not group or not group.is_active:
         flash("Gruppe nicht gefunden.", "danger")
+        return redirect(url_for("index"))
+
+    if not require_membership(group_id):
+        flash("Du bist kein Mitglied dieser Gruppe.", "danger")
         return redirect(url_for("index"))
 
     text = (request.form.get("message") or "").strip()
@@ -480,6 +514,8 @@ def send_group_message(group_id):
     if len(text) > 1000:
         flash("Nachricht ist zu lang (max. 1000 Zeichen).", "danger")
         return redirect(url_for("group_overview", group_id=group_id))
+
+    account_id = session["account_id"]
 
     msg = GroupActionModel(
         group_id=group_id,
@@ -494,6 +530,7 @@ def send_group_message(group_id):
 
 
 @app.route("/admin", methods=['GET'])
+@admin_required
 def admin_dashboard():
     query = request.args.get("q")
     if query:
@@ -511,6 +548,7 @@ def admin_dashboard():
 
 
 @app.route("/account/<int:user_id>/deactivate", methods=["GET", "POST"])
+@admin_required
 def account_deactivate(user_id):
     account = AccountModel.query.get(user_id)
 
@@ -526,6 +564,7 @@ def account_deactivate(user_id):
 
 
 @app.route("/account/<int:user_id>/activate", methods=["GET", "POST"])
+@admin_required
 def account_activate(user_id):
     account = AccountModel.query.get(user_id)
 
