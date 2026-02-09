@@ -103,10 +103,10 @@
   <section class="info-card p-3 mb-3" aria-label="Gruppeninformationen">
     <div class="d-flex align-items-start justify-content-between gap-3">
       <div class="small">
-        <div class="mb-2"><strong>Gruppenleiter:</strong> {{ owner_name if owner_name is defined else "Max Mustermann" }}</div>
-        <div class="mb-2"><strong>Klasse / Stufe:</strong> {{ class_grade if class_grade is defined else "FIA3F 3. Lehrjahr" }}</div>
-        <div class="mb-2"><strong>Fach:</strong> {{ group.subject if group else "SUD" }}</div>
-        <div class="mb-2"><strong>Thema:</strong> {{ group.topic if group else "Flask API" }}</div>
+        <div class="mb-2"><strong>Ersteller:</strong> {{ owner_first_name if owner_first_name is defined else "Unbekannt" }}</div>
+        <div class="mb-2"><strong>Stufe:</strong> {{ grade if grade is defined else "Nicht angegeben" }}</div>
+        <div class="mb-2"><strong>Fach:</strong> {{ group.subject }}</div>
+        <div class="mb-2"><strong>Thema:</strong> {{ group.topic }}</div>
         <div class="mb-2">
           <strong>Treffpunkt:</strong>
           {% if group.appointment %}

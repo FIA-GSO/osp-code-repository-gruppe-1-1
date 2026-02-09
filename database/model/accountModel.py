@@ -1,12 +1,10 @@
 from sqlalchemy import CheckConstraint
 from datetime import datetime
-from sqlalchemy.orm import Session
 from database.model.base import db
 
 
 class AccountModel(db.Model):
     __tablename__ = 'account'
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     secret = db.Column(db.String(255), nullable=False)
@@ -20,27 +18,28 @@ class AccountModel(db.Model):
 
 
 def create_account(account):
-    with Session(db.engine) as db_session:
-        db_session.add(account)
-        db_session.commit()
-        db_session.refresh(account)
-        return account
+    db.session.add(account)
+    db.session.commit()
+    db.session.refresh(account)
+    return account
 
 
-def edit_account(account_id, dict):
-    with Session(db.engine) as db_session:
-        account = AccountModel.query.get(account_id)
-        account.update(dict)
-        db_session.commit()
+def edit_account(account_id, data: dict):
+    account = db.session.get(AccountModel, account_id)
+    if not account:
+        return
+    for k, v in data.items():
+        setattr(account, k, v)
+    db.session.commit()
 
 
 def delete_account(account_id):
-    with Session(db.engine) as db_session:
-        account = AccountModel.query.get(account_id)
-        db_session.delete(account)
-        db_session.commit()
+    account = db.session.get(AccountModel, account_id)
+    if not account:
+        return
+    db.session.delete(account)
+    db.session.commit()
 
 
 def get_account_by_email(email) -> AccountModel:
-    with Session(db.engine) as db_session:
-        return AccountModel.query.filter_by(email=email).first()
+    return AccountModel.query.filter_by(email=(email or "").strip().lower()).first()

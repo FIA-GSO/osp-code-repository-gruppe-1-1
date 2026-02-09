@@ -109,38 +109,31 @@
               aria-expanded="false"
               aria-controls="my_group{{ my_group.id }}"
             >
-              <div class="d-flex flex-column">
-                <span class="fw-semibold">{{ my_group.name }}</span>
+              <!-- LINKER BLOCK -->
+              <div class="d-flex flex-column gap-1 flex-grow-1">
+                <span class="fw-semibold grp-name">{{ my_group.topic }}</span>
 
                 {% if my_group.appointment %}
-                  <small class="text-muted d-flex align-items-center gap-2">
-
-                    <!-- Datum -->
-                    <span>
-                      Wann: {{ my_group.appointment | dt_local }}
-                    </span>
-
-                    <!-- Status Badge -->
-                    {% set status = group_meta[my_group.id].status %}
-                    {% if status == "past" %}
-                      <span class="badge rounded-pill text-bg-secondary">abgelaufen</span>
-                    {% elif status == "today" %}
-                      <span class="badge rounded-pill text-bg-warning">heute</span>
-                    {% elif status == "future" %}
-                      <span class="badge rounded-pill text-bg-info">geplant</span>
-                    {% endif %}
-                  </small>
-                {% endif %}
-                <small class="text-muted d-flex align-items-center gap-2">
-                  <span>
-                    Wo: {{ my_group.place }}
-                  </span>
+                <small class="text-muted"><strong>Wann:</strong> {{ my_group.appointment | dt_local }} Uhr - <strong>Wo:</strong> {{ my_group.place }}
+                  <!-- STATUS BADGE -->
+                  {% set status = group_meta[my_group.id].status %}
+                  {% if status == "past" %}
+                    <span class="fw-semibold badge rounded-pill text-bg-secondary ms-1">abgelaufen</span>
+                  {% elif status == "today" %}
+                    <span class="fw-semibold badge rounded-pill text-bg-warning ms-1">heute</span>
+                  {% elif status == "future" %}
+                    <span class="fw-semibold badge rounded-pill text-bg-info ms-1">geplant</span>
+                  {% endif %}
                 </small>
+                {% endif %}
               </div>
 
-              <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
-                {{ group_meta[my_group.id].member_count }}/32
-              </span>
+              <!-- RECHTER BLOCK -->
+              <div class="d-flex flex-column align-items-end gap-1 ms-3">
+                <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
+                  {{ group_meta[my_group.id].member_count }}/{{ group_meta[my_group.id].group_limit }}
+                </span>
+              </div>
             </button>
 
             <!-- Summary -->
@@ -157,21 +150,19 @@
 
                   <div class="d-flex justify-content-end">
 
-                    <!--IF ADMIN v-->
+                    {% if my_group.owner == account_id %}
                     <form method="post"
                       action="{{ url_for('deactivate_group_route', group_id=my_group.id) }}"
-                      onsubmit="return confirm('Möchtest du diese Gruppe wirklich deaktivieren?');"
+                      onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
                       class="m-0">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                       <button type="submit"
                               class="btn btn-outline-danger rounded-pill px-4">
-                        Deaktivieren
+                        Löschen
                       </button>
                     </form>
-                    <!--IF ADMIN ^-->
-                    <!--vvvvvvv später ersetzen mit group.owner== current_user.id vvvvvvv-->
-                  {% if my_group.owner == account_id %}<!-- DAS DA -->
+
                     <button
                       type="button"
                       class="btn btn-outline-primary rounded-pill px-4"
@@ -187,7 +178,7 @@
                     >
                       Bearbeiten
                     </button>
-                  {% endif %}
+                    {% endif %}
                     <div class="d-flex justify-content-end">
                       <a class="open btn btn-first rounded-pill px-4"
                          href="{{ url_for('group_overview', group_id=my_group.id) }}">
@@ -225,38 +216,31 @@
               aria-expanded="false"
               aria-controls="group{{ group.id }}"
             >
-              <div class="d-flex flex-column">
-                <span class="fw-semibold">{{ group.name }}</span>
+              <!-- LINKER BLOCK -->
+              <div class="d-flex flex-column gap-1 flex-grow-1">
+                <span class="fw-semibold grp-name">Thema: {{ group.topic }}</span>
 
                 {% if group.appointment %}
-                  <small class="text-muted d-flex align-items-center gap-2">
-
-                    <!-- Datum -->
-                    <span>
-                      Wann: {{ group.appointment | dt_local }}
-                    </span>
-
-                    <!-- Status Badge -->
-                    {% set status = group_meta[group.id].status %}
-                    {% if status == "past" %}
-                      <span class="badge rounded-pill text-bg-secondary">abgelaufen</span>
-                    {% elif status == "today" %}
-                      <span class="badge rounded-pill text-bg-warning">heute</span>
-                    {% elif status == "future" %}
-                      <span class="badge rounded-pill text-bg-info">geplant</span>
-                    {% endif %}
-                  </small>
-                {% endif %}
-                <small class="text-muted d-flex align-items-center gap-2">
-                  <span>
-                    Wo: {{ group.place }}
-                  </span>
+                <small class="text-muted"><strong>Wann:</strong> {{ group.appointment | dt_local }} Uhr - <strong>Wo:</strong> {{ group.place }}
+                  <!-- STATUS BADGE -->
+                  {% set status = group_meta[group.id].status %}
+                  {% if status == "past" %}
+                    <span class="fw-semibold badge rounded-pill text-bg-secondary ms-1">abgelaufen</span>
+                  {% elif status == "today" %}
+                    <span class="fw-semibold badge rounded-pill text-bg-warning ms-1">heute</span>
+                  {% elif status == "future" %}
+                    <span class="fw-semibold badge rounded-pill text-bg-info ms-1">geplant</span>
+                  {% endif %}
                 </small>
+                {% endif %}
               </div>
 
-              <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
-                {{ group_meta[group.id].member_count }}/32
-              </span>
+              <!-- RECHTER BLOCK -->
+              <div class="d-flex flex-column align-items-end gap-1 ms-3">
+                <span class="text-muted fw-semibold" style="min-width:64px;text-align:right;">
+                  {{ group_meta[group.id].member_count }}/{{ group_meta[group.id].group_limit }}
+                </span>
+              </div>
             </button>
 
             <!-- Summary -->
@@ -319,7 +303,7 @@
         {% endfor %}
       </ul>
     {% else %}
-      <p class="text-muted">Es sind noch keine Gruppen vorhanden.</p>
+      <p class="text-muted">Es sind keine offenen Gruppen vorhanden.</p>
     {% endif %}
 
     {% if search %}
