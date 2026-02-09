@@ -14,7 +14,7 @@ def create_account():
     )
 
     model_create_account(account)
-    session["account"] = True
+    session["account_id"] = account.id
 
     return
 
@@ -32,9 +32,8 @@ def login_user():
             flash(e, "danger")
     else:
         flash('Erfolgreich eingeloggt!', "success")
-        session["account"] = True
-
-    return redirect(url_for("index"))
+        session["account_id"] = account.id
+        return redirect(url_for("index"))
 
 
 def get_form_data():
