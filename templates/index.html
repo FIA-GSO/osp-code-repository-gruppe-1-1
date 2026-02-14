@@ -17,7 +17,7 @@
   <div class="d-flex align-items-center justify-content-between">
     <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1>
 
-    <nav aria-label="Profilmenü">
+    <nav aria-label="Profilmenü float-end">
       <div class="dropdown">
         <button
           class="btn p-0 border-0 bg-transparent"
@@ -26,9 +26,8 @@
           aria-expanded="false"
           aria-label="Profilmenü öffnen"
         >
-          <span class="rounded-circle d-flex align-items-center justify-content-center"
+          <span class="rounded-circle d-flex align-items-center justify-content-center highlight"
                 style="width:52px;height:52px;background:#E9ECEF;">
-            <!-- Platzhalter-Icon -->
             <svg width="28" height="28" viewBox="0 0 24 24" fill="#ADB5BD" aria-hidden="true">
               <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2-8 4v2h16v-2c0-2-3.58-4-8-4Z"/>
             </svg>
@@ -36,10 +35,13 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end shadow-sm on-top">
-          <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+          <li><a class="dropdown-item fw-bold text-center" href="{{ url_for('auth.logout') }}">Logout</a></li>
         </ul>
       </div>
     </nav>
+  </div>
+  <div class="d-flex justify-content-end">
+    <p>Eingeloggt als: {{ user_email }}</p>
   </div>
 </header>
 
@@ -64,19 +66,14 @@
   {% endif %}
 {% endwith %}
 
-
-
-
-
-
 <main class="container pb-5" style="max-width: 520px;">
   <!-- Suche -->
   <section aria-label="Suche" class="mb-3">
-    <form class="row g-2 align-items-center" method="get" action="{{ url_for('index') }}">
+    <form class="row g-2 align-items-center" method="get" action="{{ url_for('main.index') }}">
       <div class="col">
         <label class="visually-hidden" for="search">Suchen</label>
         <input id="search" name="q" type="search"
-               class="form-control form-control-lg rounded-pill"
+               class="form-control form-control-lg rounded-pill highlight"
                placeholder="Suchen.." value="{{ search or '' }}">
       </div>
       <div class="col-auto">
@@ -85,13 +82,13 @@
     </form>
   </section>
   {% if search %}
-      <a href="{{ url_for('index') }}" class="small text-muted ms-2">
-        Suche zurücksetzen
-      </a>
-    {% endif %}
+    <a href="{{ url_for('main.index') }}" class="small text-muted">
+      Suche zurücksetzen
+    </a>
+  {% endif %}
 
   <!-- Meine Gruppen -->
-  <section aria-labelledby="my-groups-title" class="mb-4">
+  <section aria-labelledby="my-groups-title" class="mb-4t pb-4">
     <h2 id="my-groups-title" class="fw-semibold mb-3 all-grp">Meine Gruppen</h2>
 
     <ul class="list-unstyled vstack gap-3 m-0">
@@ -102,7 +99,7 @@
             <!-- Klickbare Gruppenzeile -->
             <button
               type="button"
-              class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between
+              class="w-100 text-start bg-white highlight px-3 py-3 d-flex align-items-center justify-content-between
               pill-row pill-shadow {% if group_meta[my_group.id].status == 'past' or group_meta[my_group.id].is_full %}pill-dashed{% endif %} p-1"
               data-bs-toggle="collapse"
               data-bs-target="#my_group{{ my_group.id }}"
@@ -152,9 +149,9 @@
 
                     {% if my_group.owner == account_id %}
                     <form method="post"
-                      action="{{ url_for('deactivate_group_route', group_id=my_group.id) }}"
+                      action="{{ url_for('groups.deactivate_group_route', group_id=my_group.id) }}"
                       onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
-                      class="m-0">
+                      class="m-0 pe-2">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                       <button type="submit"
@@ -179,9 +176,9 @@
                       Bearbeiten
                     </button>
                     {% endif %}
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-end ps-2">
                       <a class="open btn btn-first rounded-pill px-4"
-                         href="{{ url_for('group_overview', group_id=my_group.id) }}">
+                         href="{{ url_for('groups.group_overview', group_id=my_group.id) }}">
                         Öffnen
                       </a>
                     </div>
@@ -191,8 +188,13 @@
             </div>
           </li>
         {% endfor %}
-      {% else %}
+      {% elif my_groups|length == 0 and not search %}
           <p class="text-muted">Du bist aktuell in keiner Gruppe.</p>
+      {% endif %}
+      {% if search and my_groups|length == 0 %}
+      <div class="text-center text-muted py-4">
+        Keine Gruppen gefunden{% if search %} für „{{ search }}“{% endif %}.
+      </div>
       {% endif %}
     </ul>
   </section>
@@ -209,7 +211,7 @@
             <!-- Klickbare Gruppenzeile -->
             <button
               type="button"
-              class="w-100 text-start bg-white border px-3 py-3 d-flex align-items-center justify-content-between
+              class="w-100 text-start bg-white highlight px-3 py-3 d-flex align-items-center justify-content-between
               pill-row pill-shadow {% if group_meta[group.id].status == 'past' or group_meta[group.id].is_full %}pill-dashed{% endif %} p-1"
               data-bs-toggle="collapse"
               data-bs-target="#group{{ group.id }}"
@@ -258,7 +260,7 @@
                   <div class="d-flex justify-content-end">
                   {% if group.owner == account_id %}
                     <form method="post"
-                      action="{{ url_for('delete_group_route', group_id=group.id) }}"
+                      action="{{ url_for('groups.delete_group_route', group_id=group.id) }}"
                       onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
                       class="m-0">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -285,7 +287,7 @@
                       Bearbeiten
                     </button>
                   {% endif %}
-                    <form method="post" action="{{ url_for('join_group', group_id=group.id) }}">
+                    <form method="post" action="{{ url_for('groups.join_group', group_id=group.id) }}">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                       <button
                         type="submit"
@@ -302,11 +304,11 @@
           </li>
         {% endfor %}
       </ul>
-    {% else %}
+    {% elif groups|length == 0 and not search %}
       <p class="text-muted">Es sind keine offenen Gruppen vorhanden.</p>
     {% endif %}
 
-    {% if search %}
+    {% if search and groups|length == 0 %}
       <div class="text-center text-muted py-4">
         Keine Gruppen gefunden{% if search %} für „{{ search }}“{% endif %}.
       </div>
@@ -324,7 +326,7 @@
 <!-- Floating Action Button -->
 <button
   type="button"
-  class="btn-create position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none border-0"
+  class="btn-create position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center text-decoration-none highlight"
   data-bs-toggle="modal"
   data-bs-target="#createGroupModal"
   aria-label="Neue Lerngruppe erstellen"

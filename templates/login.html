@@ -45,7 +45,7 @@
       Login
     </h1>
 
-    <form method="post" action="{{ url_for('login_user') }}"
+    <form method="post" action="{{ url_for('auth.login_user') }}"
           class="needs-validation" novalidate>
 
       <div class="mb-3">
@@ -91,7 +91,7 @@
 
     <p class="text-center text-muted mt-4 mb-0">
       Noch kein Account?
-      <a href="{{ url_for('register_account') }}" class="fw-semibold text-decoration-none">Registrieren</a>
+      <a href="{{ url_for('auth.register_account') }}" class="fw-semibold text-decoration-none">Registrieren</a>
     </p>
   </section>
 </main>
