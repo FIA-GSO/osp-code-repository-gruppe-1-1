@@ -86,6 +86,11 @@
     color: white;
 }
 
+.btn-first:hover {
+    background-color: #315a89 !important;
+    color: white;
+}
+
 a {
     color: #376CA9;
 }
@@ -102,6 +107,10 @@ a {
     box-shadow:0 10px 25px rgba(0,0,0,.18);
 }
 
+.btn-create:hover {
+    background:#3a6797;
+}
+
 .plus {
     font-size:44px;
     line-height:0;
@@ -109,6 +118,11 @@ a {
 
 .btn-disabled {
     background:#2FA6A3 !important;
+    border-color:#2FA6A3 !important;
+}
+
+.btn-disabled:hover {
+    background:#27918d !important;
     border-color:#2FA6A3 !important;
 }
 
@@ -123,4 +137,27 @@ a {
 
 .all-grp {
     font-size:1.75rem;
+}
+
+.form-control::placeholder {
+    color: rgba(33, 37, 41, 0.3);
+}
+
+.on-top {
+    z-index: 1080;
+}
+
+.link-no-underline {
+    text-decoration: none;
+    color: #000;
+}
+
+.highlight {
+    border: solid 1px #c1c1c1;
+    z-index: 1010;
+}
+
+.highlight:hover {
+    border: solid 1px #7e7e7e;
+    z-index: 1010;
 }

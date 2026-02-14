@@ -12,5 +12,5 @@ class GroupActionModel(db.Model):
     account = db.relationship("AccountModel", foreign_keys=[account_id])
     type = db.Column(db.String(255), CheckConstraint("type in ('ACTION', 'MESSAGE')"), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    updated = db.Column(db.DateTime, nullable=False, default=datetime.now(), onupdate=datetime.now())
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)

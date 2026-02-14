@@ -1,9 +1,6 @@
-from sqlalchemy.orm import Session
-
 from database.model.base import db
-from sqlalchemy import ForeignKey, or_
+from sqlalchemy import ForeignKey
 from datetime import datetime
-import time
 
 
 class GroupModel(db.Model):
@@ -24,27 +21,24 @@ class GroupModel(db.Model):
 
 
 def save_group(group: GroupModel) -> GroupModel:
-    with Session(db.engine) as session:
-        session.add(group)
-        session.commit()
-        session.refresh(group)
-        return group
+    db.session.add(group)
+    db.session.commit()
+    db.session.refresh(group)
+    return group
 
 
 def edit_group(group_id: int, data: dict) -> None:
-    with Session(db.engine) as session:
-        group = session.get(GroupModel, group_id)
-        if not group:
-            return
-        for key, value in data.items():
-            setattr(group, key, value)
-        session.commit()
+    group = db.session.get(GroupModel, group_id)
+    if not group:
+        return
+    for key, value in data.items():
+        setattr(group, key, value)
+    db.session.commit()
 
 
 def delete_group(group_id: int) -> None:
-    with Session(db.engine) as session:
-        group = session.get(GroupModel, group_id)
-        if not group:
-            return
-        session.delete(group)
-        session.commit()
+    group = db.session.get(GroupModel, group_id)
+    if not group:
+        return
+    db.session.delete(group)
+    db.session.commit()
