@@ -66,6 +66,7 @@ def group_overview(group_id):
         grade=grade,
         appointment_is_past=appointment_is_past,
         messages=messages,
+        current_user=current_user,
         current_user_id=current_user_id,
         current_user_email=current_user_email,
     )
@@ -213,7 +214,9 @@ def delete_group_route(group_id):
         return redirect(url_for("main.index"))
 
     account_id = session["account_id"]
-    if group.owner != account_id:
+    user = AccountModel.query.get(account_id)
+
+    if group.owner != account_id | user.role != "ADMIN":
         flash("Du darfst diese Gruppe nicht löschen.", "danger")
         return redirect(url_for("main.index"))
 

@@ -147,7 +147,7 @@
 
                   <div class="d-flex justify-content-end">
 
-                    {% if my_group.owner == account_id %}
+                    {% if my_group.owner == account_id or current_user.role == "ADMIN" %}
                     <form method="post"
                       action="{{ url_for('groups.deactivate_group_route', group_id=my_group.id) }}"
                       onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
@@ -258,7 +258,7 @@
                   </p>
 
                   <div class="d-flex justify-content-end">
-                  {% if group.owner == account_id %}
+                  {% if group.owner == account_id or current_user.role != "ADMIN"%}
                     <form method="post"
                       action="{{ url_for('groups.delete_group_route', group_id=group.id) }}"
                       onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"

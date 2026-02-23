@@ -94,4 +94,5 @@ def index():
         group_meta=group_meta,
         search=search,
         user_email=user_email,
+        current_user=current_user,
     )
