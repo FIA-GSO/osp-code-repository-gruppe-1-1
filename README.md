@@ -1,1 +1,2 @@
-Hallo i bims, eine riedmieh
+# Lerngruppen-Tool
+Ein Tool zum Erstellen und beitreten von Lerngruppen.
