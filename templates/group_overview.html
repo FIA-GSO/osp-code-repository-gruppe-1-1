@@ -36,6 +36,9 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end shadow-sm on-top">
+          {% if current_user.role == "ADMIN" %}
+          <li><a class="dropdown-item fw-bold text-center" href="{{ url_for('admin.admin_dashboard') }}">Admin-Bereich</a></li>
+          {% endif %}
           <li><a class="dropdown-item fw-bold text-center" href="{{ url_for('auth.logout') }}">Logout</a></li>
         </ul>
       </div>
