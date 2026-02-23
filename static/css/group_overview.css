@@ -3,7 +3,6 @@
     --pill-radius: 999px;
   }
 
-  /* Container wie dein UI */
   .app-shell{ max-width: var(--app-max); }
 
   /* Header */
@@ -59,9 +58,9 @@
     padding: 10px 18px;
   }
 
-  /* Chat layout */
+  /* Chat */
   .chat-area{
-    padding-bottom: 92px; /* Platz für composer */
+    padding-bottom: 92px;
   }
 
   .name-pill{
@@ -99,7 +98,6 @@
   .msg-row.left{ align-items:flex-start; }
   .msg-row.right{ align-items:flex-end; }
 
-  /* Composer (bottom input) */
   .composer{
     position: sticky;
     bottom: 0;
@@ -117,7 +115,6 @@
     padding: 0 18px;
   }
 
-  /* Kleine Divider-Optik wie im Mock */
   .soft-divider{
     height: 1px;
     background: rgba(0,0,0,.06);

@@ -30,7 +30,7 @@
 
     // Wenn Modal geöffnet wird: Daten aus dem geklickten Button übernehmen
     modalEl.addEventListener('show.bs.modal', (event) => {
-      const btn = event.relatedTarget; // der Button, der das Modal geöffnet hat
+      const btn = event.relatedTarget;
       if (!btn) return;
 
       const groupId = btn.getAttribute('data-group-id') || '';
@@ -42,7 +42,6 @@
       const groupPlace = btn.getAttribute('data-group-place') || '';
 
       // Form Action setzen: /groups/<id>/edit
-      // Wenn du einen anderen Pfad nutzt, hier anpassen!
       formEl.action = `/groups/${groupId}/edit`;
 
       // Felder befüllen
@@ -56,7 +55,7 @@
       const ts = btn.dataset.groupAppointment;
 
       if (ts) {
-        // Unix → datetime-local (YYYY-MM-DDTHH:MM)
+        // Unix datetime-local (YYYY-MM-DDTHH:MM)
         const d = new Date(parseInt(ts) * 1000);
         d.setHours(d.getHours() + 1);
         appointmentEl.value = d.toISOString().slice(0, 16);
@@ -64,7 +63,6 @@
         appointmentEl.value = '';
       }
 
-      // Select setzen (falls leer -> placeholder)
       if (groupGrade) {
         stufeEl.value = groupGrade;
       } else {
@@ -113,7 +111,7 @@
         const val = field.value;
 
         if (!val) {
-          // optionales Feld → ok
+          // optionales Feld
           field.setCustomValidity('');
         } else {
           const chosen = new Date(val);
