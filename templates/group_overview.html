@@ -16,7 +16,7 @@
 <body>
 <header class="container py-4" style="max-width: 520px;">
   <div class="d-flex align-items-center justify-content-between">
-    <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1>
+    <a class="link-no-underline" href="{{ url_for('main.index') }}"><h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1></a><br>
 
     <nav aria-label="Profilmenü float-end">
       <div class="dropdown">
@@ -119,10 +119,10 @@
   <section class="info-card p-3 mb-3" aria-label="Gruppeninformationen">
     <div class="d-flex align-items-start justify-content-between gap-3">
       <div class="small">
-        <div class="mb-2"><strong>Ersteller:</strong> {{ owner_first_name if owner_first_name is defined else "Unbekannt" }}</div>
+        <div class="mb-2" style="word-break: break-all;"><strong>Ersteller:</strong> {{ owner_first_name if owner_first_name is defined else "Unbekannt" }}</div>
         <div class="mb-2"><strong>Stufe:</strong> {{ grade if grade is defined else "Nicht angegeben" }}</div>
-        <div class="mb-2"><strong>Fach:</strong> {{ group.subject }}</div>
-        <div class="mb-2"><strong>Thema:</strong> {{ group.topic }}</div>
+        <div class="mb-2" style="word-break: break-all;"><strong>Fach:</strong> {{ group.subject }}</div>
+        <div class="mb-2" style="word-break: break-all;"><strong>Thema:</strong> {{ group.topic }}</div>
         <div class="mb-2">
           <strong>Treffpunkt:</strong>
           {% if group.appointment %}
@@ -138,44 +138,46 @@
         <div class="mb-2"><strong>Mitglieder:</strong> ({{ member_count if member_count is defined else 2 }} / {{ group_limit if group_limit is defined else 32 }})</div>
       </div>
 
-      {% if group.owner != current_user_id and current_user.role != "ADMIN" %}
-      <form method="post" action="{{ url_for('groups.leave_group', group_id=group.id) }}" class="m-0">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-secondary leave-btn"
-        onsubmit="return confirm('Möchtest du die Gruppe wirklich verlassen?');"
-        >Verlassen</button>
-      </form>
-      {% elif current_user.role == "ADMIN" %}
-      <form method="post" action="{{ url_for('groups.leave_group', group_id=group.id) }}" class="m-0">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-secondary rounded-pill px-4 leave-btn"
-        onsubmit="return confirm('Möchtest du die Gruppe wirklich verlassen?');"
-        >Verlassen</button>
-      </form>
-      <form method="post"
-        action="{{ url_for('groups.deactivate_group_route', group_id=group.id) }}"
-        onsubmit="return confirm('Möchtest du diese Gruppe wirklich deaktivieren?');"
-        class="m-0">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="d-flex flex-column align-items-end">
+        {% if group.owner != current_user_id and current_user.role != "ADMIN" %}
+        <form method="post" action="{{ url_for('groups.leave_group', group_id=group.id) }}" class="m-0">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-secondary px-4 leave-btn"
+          onsubmit="return confirm('Möchtest du die Gruppe wirklich verlassen?');"
+          >Verlassen</button>
+        </form>
+        {% elif current_user.role == "ADMIN" %}
+        <form method="post" action="{{ url_for('groups.leave_group', group_id=group.id) }}" class="m-0">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-secondary rounded-pill px-4 leave-btn"
+          onsubmit="return confirm('Möchtest du die Gruppe wirklich verlassen?');"
+          >Verlassen</button>
+        </form>
+        <form method="post"
+          action="{{ url_for('groups.deactivate_group_route', group_id=group.id) }}"
+          onsubmit="return confirm('Möchtest du diese Gruppe wirklich deaktivieren?');"
+          class="mt-3">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <button type="submit"
-                class="btn btn-outline-danger rounded-pill px-4">
-          Löschen
-        </button>
-      </form>
-      {% else %}
-      <form method="post"
-        action="{{ url_for('groups.deactivate_group_route', group_id=group.id) }}"
-        onsubmit="return confirm('Möchtest du diese Gruppe wirklich deaktivieren?');"
-        class="m-0">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit"
+                  class="btn btn-outline-danger rounded-pill px-4">
+            Löschen
+          </button>
+        </form>
+        {% else %}
+        <form method="post"
+          action="{{ url_for('groups.deactivate_group_route', group_id=group.id) }}"
+          onsubmit="return confirm('Möchtest du diese Gruppe wirklich deaktivieren?');"
+          class="mt-3">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-        <button type="submit"
-                class="btn btn-outline-danger rounded-pill px-4">
-          Löschen
-        </button>
-      </form>
-      {% endif %}
+          <button type="submit"
+                  class="btn btn-outline-danger rounded-pill px-4">
+            Löschen
+          </button>
+        </form>
+        {% endif %}
+      </div>
     </div>
   </section>
 

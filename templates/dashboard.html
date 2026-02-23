@@ -12,12 +12,12 @@
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/tool.js') }}"></script>
 
-    <title>Lerngruppen-Tool</title>
+    <title>Lerngruppen-Tool - Admin Dashboard</title>
 </head>
 <body>
 <header class="container py-4" style="max-width: 520px;">
     <div class="d-flex align-items-center justify-content-between">
-        <h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1>
+        <a class="link-no-underline" href="{{ url_for('main.index') }}"><h1 class="m-0 fw-bold text-uppercase" style="letter-spacing:.5px;">LERNGRUPPEN</h1></a><br>
 
         <nav aria-label="Profilmenü">
             <div class="dropdown">
@@ -69,6 +69,7 @@
 {% endif %}
 {% endwith %}
 
+<h2 class="ms-3 mb-2 fw-bold">Admin Dashboard</h2>
 <main class="container pb-5" style="max-width: 520px;">
     <a class="icon-btn link-no-underline" href="{{ url_for('main.index') }}" aria-label="Zurück">
         <!-- back arrow -->

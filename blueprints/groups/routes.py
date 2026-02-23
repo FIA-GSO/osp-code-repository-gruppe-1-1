@@ -180,11 +180,11 @@ def create_group():
         errors.append("Ungültige Stufe.")
     if place not in {"Online", "Schule"}:
         errors.append("Ungültiger Ort gewählt.")
-    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", name):
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", name):
         errors.append("Keine Sonderzeichen erlaubt")
-    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", thema):
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", thema):
         errors.append("Keine Sonderzeichen erlaubt")
-    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", fach):
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", fach):
         errors.append("Keine Sonderzeichen erlaubt")
 
     if errors:
@@ -269,7 +269,11 @@ def edit_group_route(group_id):
         return redirect(url_for("main.index"))
 
     account_id = session["account_id"]
-    if group.owner != account_id:
+    current_user = db.session.get(AccountModel, account_id)
+
+    if group.owner == account_id or current_user.role == "ADMIN":
+        pass
+    else:
         flash("Du darfst diese Gruppe nicht bearbeiten.", "danger")
         return redirect(url_for("main.index"))
 
@@ -298,11 +302,11 @@ def edit_group_route(group_id):
         errors.append("Ungültige Stufe gewählt.")
     if place not in {"Online", "Schule"}:
         errors.append("Ungültiger Ort gewählt.")
-    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", name):
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", name):
         errors.append("Keine Sonderzeichen erlaubt")
-    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", thema):
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", thema):
         errors.append("Keine Sonderzeichen erlaubt")
-    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", fach):
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", fach):
         errors.append("Keine Sonderzeichen erlaubt")
 
     if errors:
@@ -348,7 +352,7 @@ def send_group_message(group_id):
     if len(text) > 1000:
         flash("Nachricht ist zu lang (max. 1000 Zeichen).", "danger")
         return redirect(url_for("groups.group_overview", group_id=group_id))
-    if not re.fullmatch(r"[A-Za-z0-9!?,._\-:;()]+", text):
+    if not re.fullmatch(r"[A-Za-z0-9!?,._\-:;() ]+", text):
         flash("Keine Sonderzeichen erlaubt!", "danger")
         return redirect(url_for("groups.group_overview", group_id=group_id))
 
