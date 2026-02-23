@@ -3,6 +3,7 @@ from datetime import datetime
 
 from flask import request, session, redirect, url_for, render_template, flash
 from sqlalchemy.orm import joinedload
+import re
 
 from database.model.base import db
 from database.model.groupModel import GroupModel, save_group, delete_group
@@ -179,6 +180,12 @@ def create_group():
         errors.append("Ungültige Stufe.")
     if place not in {"Online", "Schule"}:
         errors.append("Ungültiger Ort gewählt.")
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", name):
+        errors.append("Keine Sonderzeichen erlaubt")
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", thema):
+        errors.append("Keine Sonderzeichen erlaubt")
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", fach):
+        errors.append("Keine Sonderzeichen erlaubt")
 
     if errors:
         for e in errors:
@@ -291,6 +298,12 @@ def edit_group_route(group_id):
         errors.append("Ungültige Stufe gewählt.")
     if place not in {"Online", "Schule"}:
         errors.append("Ungültiger Ort gewählt.")
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", name):
+        errors.append("Keine Sonderzeichen erlaubt")
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", thema):
+        errors.append("Keine Sonderzeichen erlaubt")
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", fach):
+        errors.append("Keine Sonderzeichen erlaubt")
 
     if errors:
         for e in errors:
@@ -334,6 +347,9 @@ def send_group_message(group_id):
 
     if len(text) > 1000:
         flash("Nachricht ist zu lang (max. 1000 Zeichen).", "danger")
+        return redirect(url_for("groups.group_overview", group_id=group_id))
+    if not re.fullmatch(r"[A-Za-z0-9!?,._\-:;()]+", text):
+        flash("Keine Sonderzeichen erlaubt!", "danger")
         return redirect(url_for("groups.group_overview", group_id=group_id))
 
     account_id = session["account_id"]

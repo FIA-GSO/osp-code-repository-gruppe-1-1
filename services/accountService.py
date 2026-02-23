@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Tuple, List
 from flask import session
+import re
 
 from utils.profanity import validate_text_fields
 from utils.profanity_config import ACCOUNT_TEXT_FIELDS
@@ -37,6 +38,10 @@ def service_create_account(form_data) -> tuple[bool, list[str]]:
         errors.append("Vorname fehlt.")
     if not last_name:
         errors.append("Nachname fehlt.")
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", first_name):
+        errors.append("Keine Sonderzeichen erlaubt")
+    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß]+", last_name):
+        errors.append("Keine Sonderzeichen erlaubt")
 
     if email and not email.endswith(ALLOWED_EMAIL_DOMAIN):
         errors.append(f"Bitte nutze eine {ALLOWED_EMAIL_DOMAIN}-Adresse.")

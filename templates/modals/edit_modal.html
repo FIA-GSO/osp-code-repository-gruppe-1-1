@@ -24,13 +24,11 @@
           <input type="hidden" id="edit_group_id" name="group_id">
 
           <div class="mb-3">
-            <label for="edit_name" class="form-label fw-semibold">Name</label>
-            <input type="text" id="edit_name" name="name"
+            <label for="edit_thema" class="form-label fw-semibold">Thema</label>
+            <input type="text" id="edit_thema" name="thema"
                    class="form-control form-control-lg rounded-pill"
-                   required minlength="3" maxlength="20">
-            <div class="invalid-feedback">
-              Bitte gib einen Gruppennamen (mind. 3 Zeichen) ein.
-            </div>
+                   required minlength="3" maxlength="25" pattern="[A-Za-z0-9äöüÄÖÜß]+">
+            <div class="invalid-feedback">Bitte gib ein Thema (mind. 3 Zeichen) an.</div>
           </div>
 
           <div class="mb-3">
@@ -50,16 +48,8 @@
             <label for="edit_fach" class="form-label fw-semibold">Fach</label>
             <input type="text" id="edit_fach" name="fach"
                    class="form-control form-control-lg rounded-pill"
-                   required minlength="3" maxlength="20">
+                   required minlength="3" maxlength="20" pattern="[A-Za-z0-9äöüÄÖÜß]+">
             <div class="invalid-feedback">Bitte gib ein Fach (mind. 3 Zeichen) an.</div>
-          </div>
-
-          <div class="mb-3">
-            <label for="edit_thema" class="form-label fw-semibold">Thema</label>
-            <input type="text" id="edit_thema" name="thema"
-                   class="form-control form-control-lg rounded-pill"
-                   required minlength="3" maxlength="25">
-            <div class="invalid-feedback">Bitte gib ein Thema (mind. 3 Zeichen) an.</div>
           </div>
 
           <div class="mb-3">
@@ -88,6 +78,16 @@
             <div class="invalid-feedback">Bitte wähle einen Ort aus.</div>
           </div>
 
+          <div class="mb-3">
+            <label for="edit_name" class="form-label fw-semibold"></label>
+            <input type="hidden" id="edit_name" name="name"
+                   class="form-control form-control-lg rounded-pill"
+                   required minlength="3" maxlength="20" value="123" pattern="[A-Za-z0-9äöüÄÖÜß]+">
+            <div class="invalid-feedback">
+              Bitte gib einen Gruppennamen (mind. 3 Zeichen) ein.
+            </div>
+          </div>
+
           <footer class="d-flex gap-2 pt-2">
             <button type="button"
                     class="btn btn-outline-secondary btn-lg rounded-pill flex-grow-1"
@@ -96,7 +96,7 @@
             </button>
 
             <button type="submit"
-                    class="btn btn-primary btn-lg rounded-pill flex-grow-1">
+                    class="btn btn-primary btn-lg btn-first rounded-pill flex-grow-1">
               Speichern
             </button>
           </footer>

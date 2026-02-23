@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/group_overview.css') }}">
-    <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='img/icons8-buch-ios-17-outlined-16.png') }}">
-    <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='img/icons8-buch-ios-17-outlined-32.png') }}">
+    <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/tool.js') }}"></script>
 
@@ -82,7 +82,7 @@
 
     <div class="flex-grow-1">
       <p class="subbar-title">
-        {{ group.name if group else "Flask API" }}
+        {{ group.topic if group else "Flask API" }}
       </p>
     </div>
     {% if group.appointment %}
@@ -148,7 +148,7 @@
       {% elif current_user.role == "ADMIN" %}
       <form method="post" action="{{ url_for('groups.leave_group', group_id=group.id) }}" class="m-0">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="btn btn-secondary leave-btn"
+        <button type="submit" class="btn btn-secondary rounded-pill px-4 leave-btn"
         onsubmit="return confirm('Möchtest du die Gruppe wirklich verlassen?');"
         >Verlassen</button>
       </form>
@@ -160,7 +160,7 @@
 
         <button type="submit"
                 class="btn btn-outline-danger rounded-pill px-4">
-          Gruppe Löschen
+          Löschen
         </button>
       </form>
       {% else %}
@@ -172,7 +172,7 @@
 
         <button type="submit"
                 class="btn btn-outline-danger rounded-pill px-4">
-          Gruppe Löschen
+          Löschen
         </button>
       </form>
       {% endif %}
@@ -212,7 +212,7 @@
       </div>
 
       <div class="col-auto topps">
-        <button type="submit" class="btn btn-primary">Senden</button>
+        <button type="submit" class="btn btn-primary btn-first">Senden</button>
       </div>
     </form>
   </section>

@@ -17,20 +17,21 @@
               class="needs-validation" novalidate>
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-          <!-- Name -->
+          <!-- Thema -->
           <div class="mb-3">
-            <label for="group_name" class="form-label fw-semibold">Name</label>
+            <label for="group_topic" class="form-label fw-semibold">Thema</label>
             <input
               type="text"
-              id="group_name"
-              name="name"
+              id="group_topic"
+              name="thema"
               class="form-control form-control-lg rounded-pill"
-              placeholder="z.B. HTML Lerngruppe"
+              placeholder="z.B. Lineare Funktionen"
               required
               minlength="3"
-              maxlength="20"
+              maxlength="25"
+              pattern="[A-Za-z0-9äöüÄÖÜß]+"
             >
-            <div class="invalid-feedback">Bitte gib einen Gruppennamen ein (mind. 3 Zeichen).</div>
+            <div class="invalid-feedback">Bitte gib ein Thema an (mind. 3 Zeichen).</div>
           </div>
 
           <!-- Stufe (Dropdown) -->
@@ -62,24 +63,9 @@
               required
               minlength="3"
               maxlength="20"
+              pattern="[A-Za-z0-9äöüÄÖÜß]+"
             >
             <div class="invalid-feedback">Bitte gib ein Fach an (mind. 3 Zeichen).</div>
-          </div>
-
-          <!-- Thema -->
-          <div class="mb-3">
-            <label for="group_topic" class="form-label fw-semibold">Thema</label>
-            <input
-              type="text"
-              id="group_topic"
-              name="thema"
-              class="form-control form-control-lg rounded-pill"
-              placeholder="z.B. Lineare Funktionen"
-              required
-              minlength="3"
-              maxlength="25"
-            >
-            <div class="invalid-feedback">Bitte gib ein Thema an (mind. 3 Zeichen).</div>
           </div>
 
           <!-- Wann? -->
@@ -110,13 +96,31 @@
             <div class="invalid-feedback">Bitte wähle einen Ort aus.</div>
           </div>
 
+          <!-- Name -->
+          <div class="mb-3">
+            <label for="group_name" class="form-label fw-semibold"></label>
+            <input
+              type="hidden"
+              id="group_name"
+              name="name"
+              class="form-control form-control-lg rounded-pill"
+              placeholder="z.B. HTML Lerngruppe"
+              required
+              minlength="3"
+              maxlength="20"
+              value="123"
+              pattern="[A-Za-z0-9äöüÄÖÜß]+"
+            >
+            <div class="invalid-feedback">Bitte gib einen Gruppennamen ein (mind. 3 Zeichen).</div>
+          </div>
+
           <footer class="d-flex gap-2 pt-2">
             <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill flex-grow-1"
                     data-bs-dismiss="modal">
               Abbrechen
             </button>
 
-            <button type="submit" class="btn btn-primary btn-lg rounded-pill flex-grow-1">
+            <button type="submit" class="btn btn-primary btn-lg btn-first rounded-pill flex-grow-1">
               Erstellen
             </button>
           </footer>

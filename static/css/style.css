@@ -91,6 +91,16 @@
     color: white;
 }
 
+.btn-edit-outline {
+    border-color: #376CA9 !important;
+    color: #376CA9 !important;
+}
+
+.btn-edit-outline:hover {
+    background-color: #315a89 !important;
+    color: white !important;
+}
+
 a {
     color: #376CA9;
 }

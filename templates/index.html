@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="static/css/bootstrap.min.css">
   <link rel="stylesheet" href="static/css/style.css">
-  <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-16.png') }}">
-  <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='icons8-buch-ios-17-outlined-32.png') }}">
+  <link type="image/png" sizes="16x16" rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+  <link type="image/png" sizes="32x32" rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
   <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/tool.js') }}"></script>
 
@@ -165,7 +165,7 @@
 
                     <button
                       type="button"
-                      class="btn btn-outline-primary rounded-pill px-4"
+                      class="btn btn-outline-primary btn-edit-outline rounded-pill px-4"
                       data-bs-toggle="modal"
                       data-bs-target="#editGroupModal"
                       data-group-id="{{ my_group.id }}"
@@ -223,7 +223,7 @@
             >
               <!-- LINKER BLOCK -->
               <div class="d-flex flex-column gap-1 flex-grow-1">
-                <span class="fw-semibold grp-name">Thema: {{ group.topic }}</span>
+                <span class="fw-semibold grp-name">{{ group.topic }}</span>
 
                 {% if group.appointment %}
                 <small class="text-muted"><strong>Wann:</strong> {{ group.appointment | dt_local }} Uhr - <strong>Wo:</strong> {{ group.place }}
@@ -261,11 +261,11 @@
                   </p>
 
                   <div class="d-flex justify-content-end">
-                  {% if group.owner == account_id or current_user.role == "ADMIN"%}
+                  {% if group.owner == account_id or current_user.role == "ADMIN" %}
                     <form method="post"
-                      action="{{ url_for('groups.delete_group_route', group_id=group.id) }}"
+                      action="{{ url_for('groups.deactivate_group_route', group_id=group.id) }}"
                       onsubmit="return confirm('Möchtest du diese Gruppe wirklich löschen?');"
-                      class="m-0">
+                      class="m-0 pe-2">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                       <button type="submit"
@@ -276,7 +276,7 @@
 
                     <button
                       type="button"
-                      class="btn btn-outline-primary rounded-pill px-4"
+                      class="btn btn-outline-primary btn-edit-outline rounded-pill px-4"
                       data-bs-toggle="modal"
                       data-bs-target="#editGroupModal"
                       data-group-id="{{ group.id }}"
@@ -290,7 +290,7 @@
                       Bearbeiten
                     </button>
                   {% endif %}
-                    <form method="post" action="{{ url_for('groups.join_group', group_id=group.id) }}">
+                    <form method="post" action="{{ url_for('groups.join_group', group_id=group.id) }}" class="ps-2">
                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                       <button
                         type="submit"
