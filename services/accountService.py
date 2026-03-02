@@ -3,12 +3,13 @@ from __future__ import annotations
 from typing import Tuple, List
 from flask import session
 import re
+import secrets
 
 from utils.profanity import validate_text_fields
 from utils.profanity_config import ACCOUNT_TEXT_FIELDS
 
 from extensions import bcrypt
-from database.model.accountModel import AccountModel, create_account, get_account_by_email
+from database.model.accountModel import AccountModel, create_account, get_account_by_email, activate_user
 
 
 ALLOWED_EMAIL_DOMAIN = "@gso.schule.koeln"
@@ -16,6 +17,10 @@ ALLOWED_EMAIL_DOMAIN = "@gso.schule.koeln"
 
 def _norm_email(email: str) -> str:
     return (email or "").strip().lower()
+
+
+def generate_token():
+    return secrets.token_urlsafe(32)
 
 
 def service_create_account(form_data) -> tuple[bool, list[str]]:
@@ -56,17 +61,30 @@ def service_create_account(form_data) -> tuple[bool, list[str]]:
 
     hashed = bcrypt.generate_password_hash(password).decode("utf-8")
 
+    token = generate_token()
+
     account = AccountModel(
         email=email,
         secret=hashed,
         first_name=first_name,
         last_name=last_name,
         role="USER",
-        is_active=True,
+        is_active=False,
+        activation_token=token,
         email_verified=False,
     )
 
     create_account(account)
+    return True, []
+
+
+def service_activate_user(token):
+    user = AccountModel.query.filter_by(activation_token=token, is_active=False).first()
+
+    if not user:
+        return False, ["Ungültiger oder bereits verwendeter Aktivierungslink."]
+
+    activate_user(user)
     return True, []
 
 
@@ -85,7 +103,7 @@ def service_login_user(form_data) -> tuple[bool, list[str]]:
 
     # Account Status Checks
     if not getattr(account, "is_active", True):
-        return False, ["Dein Account ist deaktiviert."]
+        return False, ["Dein Account ist deaktiviert oder wurde noch nicht aktiviert."]
 
     if not bcrypt.check_password_hash(account.secret, password):
         return False, ["E-Mail oder Passwort ist falsch."]

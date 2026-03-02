@@ -1,6 +1,7 @@
 from sqlalchemy import CheckConstraint
 from datetime import datetime
 from database.model.base import db
+from mail_service import send_activation_mail
 
 
 class AccountModel(db.Model):
@@ -11,7 +12,8 @@ class AccountModel(db.Model):
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(255), CheckConstraint("role in ('USER', 'ADMIN')"), nullable=False)
-    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    is_active = db.Column(db.Boolean, default=False)
+    activation_token = db.Column(db.String(255), nullable=True)
     email_verified = db.Column(db.Boolean, nullable=False, default=False)
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -19,6 +21,21 @@ class AccountModel(db.Model):
 
 def create_account(account):
     db.session.add(account)
+    db.session.commit()
+    db.session.refresh(account)
+
+    send_activation_mail(account)
+    return account
+
+
+def activate_user(account):
+    if not account:
+        return None
+
+    account.is_active = True
+    account.email_verified = True
+    account.activation_token = None
+
     db.session.commit()
     db.session.refresh(account)
     return account

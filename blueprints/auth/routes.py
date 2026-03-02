@@ -1,5 +1,5 @@
 from flask import request, session, redirect, url_for, render_template, flash
-from services.accountService import service_create_account, service_login_user
+from services.accountService import AccountModel, service_create_account, service_login_user, service_activate_user
 from blueprints.auth import auth_bp
 
 
@@ -37,6 +37,17 @@ def create_account():
     for e in errors:
         flash(e, "danger")
     if ok:
-        flash("Account erstellt. Bitte einloggen.", "success")
+        flash("Account erstellt. Aktivierungslink wurde dir per E-Mail zugesendet.", "success")
+        return redirect(url_for("auth.login"))
+    return redirect(url_for("auth.register_account"))
+
+
+@auth_bp.route("/activate/<token>")
+def activate_account(token):
+    ok, errors = service_activate_user(token)
+    for e in errors:
+        flash(e, "danger")
+    if ok:
+        flash("Account wurde aktiviert. Bitte einloggen.", "success")
         return redirect(url_for("auth.login"))
     return redirect(url_for("auth.register_account"))

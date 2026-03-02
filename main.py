@@ -1,25 +1,33 @@
+from dotenv import load_dotenv
+import os
+
 from flask import Flask, redirect, url_for, flash
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_mail import Mail
 
 from extensions import bcrypt
 from database.model.base import db
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+from config import Config
+
+mail = Mail()
+
 
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(Config)
 
-    app.config["SECRET_KEY"] = "dlajwasdhdddqwf98fg9f23803f"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-    # Extensions
     bcrypt.init_app(app)
     db.init_app(app)
     csrf = CSRFProtect(app)
 
-    # DB init
     with app.app_context():
         db.create_all()
+
+    mail.init_app(app)
 
     # CSRF Fehler global
     @app.errorhandler(CSRFError)
