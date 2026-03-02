@@ -8,8 +8,6 @@ class GroupModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     owner = db.Column(ForeignKey("account.id"), nullable=False)
-    name = db.Column(db.String(255), nullable=False)
-    klasse = db.Column(db.String(255), nullable=True)
     grade = db.Column(db.String(255), nullable=True)
     subject = db.Column(db.String(255), nullable=True)
     topic = db.Column(db.String(255), nullable=False)

@@ -37,6 +37,6 @@ def validate_text_fields(
         value = data.get(field)
         if isinstance(value, str) and contains_profanity(value):
             errors.append(
-                f"Bitte keine Schimpfwörter im Feld „{field}“ verwenden."
+                f"Bitte keine Schimpfwörter verwenden."
             )
     return (len(errors) == 0), errors

@@ -6,8 +6,6 @@ from database.model.accountModel import AccountModel
 
 from blueprints.admin import admin_bp
 from blueprints.common import admin_required
-# @todo: Make user admin button
-# @todo: gruppen löschen
 
 
 @admin_bp.route("/admin", methods=["GET"])

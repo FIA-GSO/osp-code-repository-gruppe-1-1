@@ -12,7 +12,6 @@
     const formEl = document.getElementById('editGroupForm');
 
     const idEl = document.getElementById('edit_group_id');
-    const nameEl = document.getElementById('edit_name');
     const stufeEl = document.getElementById('edit_stufe');
     const fachEl = document.getElementById('edit_fach');
     const themaEl = document.getElementById('edit_thema');
@@ -22,7 +21,7 @@
     // Helper: Bootstrap validation styles zurücksetzen
     const resetValidation = () => {
       formEl.classList.remove('was-validated');
-      [nameEl, stufeEl, fachEl, themaEl, appointmentEl, placeEl].forEach((field) => {
+      [stufeEl, fachEl, themaEl, appointmentEl, placeEl].forEach((field) => {
         field.classList.remove('is-valid', 'is-invalid');
         field.setCustomValidity('');
       });
@@ -34,7 +33,6 @@
       if (!btn) return;
 
       const groupId = btn.getAttribute('data-group-id') || '';
-      const groupName = btn.getAttribute('data-group-name') || '';
       const groupGrade = btn.getAttribute('data-group-grade') || '';
       const groupSubject = btn.getAttribute('data-group-subject') || '';
       const groupTopic = btn.getAttribute('data-group-topic') || '';
@@ -46,7 +44,6 @@
 
       // Felder befüllen
       idEl.value = groupId;
-      nameEl.value = groupName;
       fachEl.value = groupSubject;
       themaEl.value = groupTopic;
       placeEl.value = groupPlace || '';

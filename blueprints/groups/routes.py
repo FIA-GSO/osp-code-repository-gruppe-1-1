@@ -156,8 +156,6 @@ def create_group():
         flash("Du kannst maximal 5 Gruppen erstellen.", "warning")
         return redirect(url_for("main.index"))
 
-    name = (request.form.get("name") or "").strip()
-    klasse = (request.form.get("klasse") or "").strip()
     stufe = (request.form.get("stufe") or "").strip()
     fach = (request.form.get("fach") or "").strip()
     thema = (request.form.get("thema") or "").strip()
@@ -174,14 +172,10 @@ def create_group():
             return redirect(url_for("main.index"))
 
     errors = []
-    if len(name) < 2:
-        errors.append("Gruppenname ist zu kurz.")
     if stufe not in ALLOWED_GRADES:
         errors.append("Ungültige Stufe.")
     if place not in {"Online", "Schule"}:
         errors.append("Ungültiger Ort gewählt.")
-    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", name):
-        errors.append("Keine Sonderzeichen erlaubt")
     if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", thema):
         errors.append("Keine Sonderzeichen erlaubt")
     if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", fach):
@@ -194,8 +188,6 @@ def create_group():
 
     group = GroupModel(
         owner=account_id,
-        name=name,
-        klasse=klasse or None,
         grade=stufe,
         subject=fach or None,
         topic=thema,
@@ -277,8 +269,6 @@ def edit_group_route(group_id):
         flash("Du darfst diese Gruppe nicht bearbeiten.", "danger")
         return redirect(url_for("main.index"))
 
-    name = (request.form.get("name") or "").strip()
-    klasse = (request.form.get("klasse") or "").strip()
     stufe = (request.form.get("stufe") or "").strip()
     fach = (request.form.get("fach") or "").strip()
     thema = (request.form.get("thema") or "").strip()
@@ -296,14 +286,10 @@ def edit_group_route(group_id):
     else:
         errors.append("Gib ein gültiges Datum ein!.")
 
-    if len(name) < 2:
-        errors.append("Bitte gib einen Gruppennamen (mind. 2 Zeichen) ein.")
     if stufe and stufe not in ALLOWED_GRADES:
         errors.append("Ungültige Stufe gewählt.")
     if place not in {"Online", "Schule"}:
         errors.append("Ungültiger Ort gewählt.")
-    if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", name):
-        errors.append("Keine Sonderzeichen erlaubt")
     if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", thema):
         errors.append("Keine Sonderzeichen erlaubt")
     if not re.fullmatch(r"[A-Za-z0-9äöüÄÖÜß ]+", fach):
@@ -314,8 +300,6 @@ def edit_group_route(group_id):
             flash(e, "danger")
         return redirect(url_for("main.index"))
 
-    group.name = name
-    group.klasse = klasse or None
     group.grade = stufe or None
     group.subject = fach or None
     group.topic = thema or None
