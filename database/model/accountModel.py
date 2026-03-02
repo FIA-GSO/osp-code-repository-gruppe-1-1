@@ -1,7 +1,7 @@
 from sqlalchemy import CheckConstraint
 from datetime import datetime
 from database.model.base import db
-from mail_service import send_activation_mail
+from services.mail_service import send_activation_mail
 
 
 class AccountModel(db.Model):

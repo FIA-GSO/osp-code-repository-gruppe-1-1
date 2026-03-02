@@ -39,7 +39,6 @@ Modulare Flask-Webanwendung zur Verwaltung von Benutzerkonten, Gruppen und Grupp
 ├── main.py
 ├── config.py
 ├── extensions.py
-├── mail_service.py
 │
 ├── blueprints/
 │   ├── main/
@@ -58,6 +57,7 @@ Modulare Flask-Webanwendung zur Verwaltung von Benutzerkonten, Gruppen und Grupp
 │
 ├── services/
 │   └── accountService.py
+│   └── mail_service.py
 │
 ├── utils/
 │   ├── profanity.py
