@@ -10,8 +10,6 @@ def _create_group(owner_id: int) -> GroupModel:
     appointment_ts = int((datetime.now() + timedelta(days=1)).timestamp())
     g = GroupModel(
         owner=owner_id,
-        name="Testgruppe",
-        klasse="FIA3F",
         grade="Mittelstufe",
         subject="FU1",
         topic="Flask",
@@ -42,8 +40,6 @@ def test_create_group_requires_login(client):
 
 def test_create_group_success(logged_in_client):
     res = logged_in_client.post("/groups/create", data={
-        "name": "Meine Gruppe",
-        "klasse": "FIA3F",
         "stufe": "Mittelstufe",
         "fach": "FU1",
         "thema": "FLASK",
